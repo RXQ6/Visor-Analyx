@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "sourceCommit": "6414d775ff21af6adc65acdbc8c98c5ce18eb067",
+  "tag": "desktop-evidence-workbench-20261004",
+  "url": "https://github.com/RXQ6/Visor-Analyx/releases/tag/desktop-evidence-workbench-20261004",
+  "draft": false,
+  "prerelease": true,
+  "assets": [
+    {
+      "name": "Data.Analysis.Agent.Setup.0.1.0.exe",
+      "size": 147328858,
+      "digest": "sha256:69803815a3b5037058afff3ae17b95d981c0d844b24fb3ae6b5c16a96c47200c",
+      "downloadUrl": "https://github.com/RXQ6/Visor-Analyx/releases/download/desktop-evidence-workbench-20261004/Data.Analysis.Agent.Setup.0.1.0.exe"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 102,
+      "digest": "sha256:e51f84d43b975f51b2e5ed1d364394450a3bb7b58c35fe8cd3d837a91e63fbd0",
+      "downloadUrl": "https://github.com/RXQ6/Visor-Analyx/releases/download/desktop-evidence-workbench-20261004/SHA256SUMS.txt"
+    }
+  ],
+  "checkedAt": "2026-10-04T08:24:00.853Z"
+}

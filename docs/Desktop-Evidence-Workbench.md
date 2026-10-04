@@ -67,7 +67,19 @@ Settings、窄屏截图与 result.json。
   147328858 bytes，SHA256 `69803815A3B5037058AFFF3AE17B95D981C0D844B24FB3AE6B5C16A96C47200C`。
 - `/S /CURRENTUSER /D=...` 真实安装 exit 0，安装目录
   `desktop/release/evidence-workbench-installed-final-20261002`，含实际 exe 与 uninstaller。
-  仍为本地未签名 0.1.0 构建，未发布 GitHub Release。
+  仍为未签名 0.1.0 构建。
+
+## GitHub 预发布
+
+2026-10-04 按用户授权发布 [证据工作台预览版](https://github.com/RXQ6/Visor-Analyx/releases/tag/desktop-evidence-workbench-20261004)。
+标签 `desktop-evidence-workbench-20261004` 对应应用提交
+`6414d775ff21af6adc65acdbc8c98c5ce18eb067`，当前源码与交付记录在 develop。
+
+[下载 Windows 安装包](https://github.com/RXQ6/Visor-Analyx/releases/download/desktop-evidence-workbench-20261004/Data.Analysis.Agent.Setup.0.1.0.exe)
+及 [SHA256 校验文件](https://github.com/RXQ6/Visor-Analyx/releases/download/desktop-evidence-workbench-20261004/SHA256SUMS.txt)。
+GitHub 返回的附件大小与 SHA256 已与上述本地验收安装包核对一致；
+[发布核验记录](../tests/results/evidence-workbench-github-release.json) 保存发布状态与附件摘要。
+已安装旧版不会自动升级，需运行新版安装包。历史验收缺口保留，因此使用 prerelease。
 
 安装版真实截图：
 

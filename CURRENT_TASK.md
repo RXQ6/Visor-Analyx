@@ -2,6 +2,14 @@
 
 ## 当前任务：证据工作台 UI（用户授权）
 
+**2026-10-04 已按用户授权提交源码并发布 GitHub 预发布安装包。**
+源码位于 develop，应用提交为 `6414d775ff21af6adc65acdbc8c98c5ce18eb067`；
+Release 标签为 `desktop-evidence-workbench-20261004`，对应同一应用提交。
+GitHub 附件的大小及 SHA256 与本地验收安装包一致，发布状态为公开 prerelease。
+发布说明：https://github.com/RXQ6/Visor-Analyx/releases/tag/desktop-evidence-workbench-20261004。
+发布核验：tests/results/evidence-workbench-github-release.json。当前源码、测试、截图及
+此前 Phase 2 的依赖实现一并提交；不上传 .env、用户配置或本地依赖目录。
+
 **证据工作台已实现并完成 dev / packaged / installed 验收；2026-10-04 完成交付记录。**
 生产修改仅限 Renderer 的 index.html、index.ts、styles.css：左侧真实文件概览/字段，
 中央回答/图表/持续提问，右侧实际事件与当前数据依据；空态增加引导与示例卡片，

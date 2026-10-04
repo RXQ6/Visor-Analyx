@@ -2,6 +2,21 @@
 
 更新时间：2026-10-04
 
+## 用户授权：GitHub 证据工作台预发布
+
+- 按用户“弄完的话上传提交到我的 GitHub 上”的授权，将已验收的新版源码、测试、
+  文档、安装版截图及此前 Phase 2 依赖实现共 103 个变更文件提交到 develop。
+  应用提交 `6414d775ff21af6adc65acdbc8c98c5ce18eb067`，远端 Git tree 与本地一致。
+  main 保持原有状态；.env、用户配置、依赖目录和构建产物未进入源码提交。
+- 已公开发布 [证据工作台预览版 0.1.0](https://github.com/RXQ6/Visor-Analyx/releases/tag/desktop-evidence-workbench-20261004)，
+  标签 desktop-evidence-workbench-20261004 指向上述应用提交。附件包含 Windows NSIS
+  安装包及 SHA256SUMS.txt；GitHub 返回的安装包大小 147328858 bytes、SHA256
+  69803815A3B5037058AFFF3AE17B95D981C0D844B24FB3AE6B5C16A96C47200C 与本地一致。
+  发布核验见 tests/results/evidence-workbench-github-release.json。
+- 本次发布不改业务实现，沿用下方已完成的 dev / packaged / installed 及全量回归结果。
+  历史窗口消失根因与 Phase 2.3 的真实 OpenAI HTTP 429 验收缺口仍保留；因此使用
+  prerelease，Phase 2.9 仍不标记为最终完全通过。已安装旧版不会自动升级。
+
 ## 用户授权：证据工作台 UI
 
 - 按用户“我要证据工作台，现在做”实现真实 Electron 界面；生产变更仅 Renderer
@@ -25,7 +40,7 @@
   contract、AgentLoop/Workflow/Session/Memory/HITL 或真实工具计算，不修改 AGENTS.md。
 - README 与 docs/Desktop-Evidence-Workbench.md 已更新安装版真实截图；结果见
   tests/results/evidence-workbench-ui-regression.json。构建与验收在 10-02～03 完成，10-04
-  核对交付记录。未发布 Release；历史首次窗口消失根因与 Phase 2.3 的 HTTP 429 缺口保留，
+  核对交付记录；随后按用户授权发布 GitHub 预发布，见上方记录。历史首次窗口消失根因与 Phase 2.3 的 HTTP 429 缺口保留，
   不将 Phase 2.9 标记为最终完全通过，不进入新业务 Phase。
 
 ## Phase 2.9.1 原生文件选择 / BrowserWindow / IPC 专项排查
