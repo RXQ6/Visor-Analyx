@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import copy
+import math
 import threading
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -41,7 +42,12 @@ class MCPStdioClient:
     ) -> None:
         if not isinstance(command, str) or not command.strip():
             raise ValueError("MCP stdio command cannot be empty")
-        if startup_timeout_seconds <= 0:
+        if (
+            isinstance(startup_timeout_seconds, bool)
+            or not isinstance(startup_timeout_seconds, (int, float))
+            or not math.isfinite(startup_timeout_seconds)
+            or startup_timeout_seconds <= 0
+        ):
             raise ValueError("MCP startup timeout must be positive")
         self.command = command
         self.args = list(args or [])
@@ -51,6 +57,7 @@ class MCPStdioClient:
         self._loop: asyncio.AbstractEventLoop | None = None
         self._queue: asyncio.Queue[_Command] | None = None
         self._active_task: asyncio.Task[Any] | None = None
+        self._runner_task: asyncio.Task[Any] | None = None
         self._ready = threading.Event()
         self._startup_error: BaseException | None = None
         self._closed = False
@@ -62,10 +69,12 @@ class MCPStdioClient:
         self._thread.start()
         if not self._ready.wait(self.startup_timeout_seconds):
             self._closed = True
+            self._abort_startup()
             raise MCPRemoteError("MCP stdio Client startup timed out")
         if self._startup_error is not None:
             self._closed = True
-            raise MCPRemoteError("MCP stdio Client could not connect") from self._startup_error
+            self._thread.join(5.0)
+            raise MCPRemoteError("MCP stdio Client could not connect") from None
 
     def list_tools(
         self,
@@ -147,6 +156,17 @@ class MCPStdioClient:
             self._startup_error = error
             self._ready.set()
 
+    def _abort_startup(self) -> None:
+        """Let SDK teardown its owned child if initialization never completes."""
+
+        loop = self._loop
+        if loop is not None and loop.is_running():
+            def cancel_runner() -> None:
+                if self._runner_task is not None:
+                    self._runner_task.cancel()
+            loop.call_soon_threadsafe(cancel_runner)
+        self._thread.join(5.0)
+
     async def _run(self) -> None:
         try:
             from mcp import Client, StdioServerParameters
@@ -155,7 +175,10 @@ class MCPStdioClient:
             self._ready.set()
             return
 
+        if self._closed:
+            return
         self._loop = asyncio.get_running_loop()
+        self._runner_task = asyncio.current_task()
         self._queue = asyncio.Queue()
         params = StdioServerParameters(
             command=self.command,
@@ -166,6 +189,8 @@ class MCPStdioClient:
         try:
             async with Client(params) as client:
                 self._ready.set()
+                if self._closed:
+                    return
                 while True:
                     command = await self._queue.get()
                     if command.kind == "stop":
@@ -194,6 +219,25 @@ class MCPStdioClient:
             raise
 
     async def _execute(self, client: Any, command: _Command) -> dict[str, Any]:
+        # The SDK validates the wire model and structured output before Adapter
+        # sees them. Preserve that boundary without leaking validation input.
+        from jsonschema import SchemaError, ValidationError as SchemaValidationError
+        from pydantic import ValidationError
+        from referencing.exceptions import Unresolvable
+
+        try:
+            return await self._execute_sdk(client, command)
+        except ValidationError:
+            raise MCPProtocolError("MCP SDK returned an invalid response") from None
+        except RuntimeError as error:
+            if isinstance(error.__cause__, (SchemaError, SchemaValidationError, Unresolvable)) or (
+                str(error).startswith("Tool ")
+                and str(error).endswith("has an output schema but did not return structured content")
+            ):
+                raise MCPProtocolError("MCP SDK returned invalid structured output") from None
+            raise
+
+    async def _execute_sdk(self, client: Any, command: _Command) -> dict[str, Any]:
         if command.kind == "list_tools":
             result = await client.list_tools(cursor=command.payload["cursor"])
             return {

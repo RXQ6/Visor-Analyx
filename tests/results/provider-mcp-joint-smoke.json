@@ -1,0 +1,247 @@
+{
+  "phase": "2.7",
+  "acceptance": "controllable_provider_plus_real_filesystem_mcp",
+  "scripted": {
+    "status": "PASS",
+    "provider_turns": 2,
+    "mcp_tool_calls": 1,
+    "schema_passed_unchanged": true,
+    "observation_returned_to_provider": true,
+    "metadata_matches_local_stat": true,
+    "metadata_size_bytes": 78,
+    "final_answer": "PASS",
+    "stop_reason": "final_answer",
+    "eval_harness": {
+      "case_id": "P27-SCRIPTED-MCP-01",
+      "category": "provider_mcp_joint",
+      "passed": true,
+      "failure_reason": null,
+      "latency": 0.009228,
+      "answer": "metadata.txt size: 78 bytes.",
+      "trace_summary": {
+        "available": true,
+        "tool_calls": [
+          {
+            "tool": "mcp_filesystem__get_file_info",
+            "status": "ok"
+          }
+        ]
+      },
+      "route_correct": null,
+      "tool_correct": true,
+      "contract_valid": true,
+      "trace_available": true,
+      "tool_calls": 1,
+      "loop_iterations": 2,
+      "retry_count": 0,
+      "failure_type": null,
+      "process_evaluations": [
+        {
+          "evaluator": "tool",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "tool_correct": true,
+            "expected": [
+              "mcp_filesystem__get_file_info"
+            ],
+            "actual": [
+              "mcp_filesystem__get_file_info"
+            ],
+            "repeated": []
+          }
+        },
+        {
+          "evaluator": "contract",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "contract_valid": true,
+            "kind": "tool_result"
+          }
+        },
+        {
+          "evaluator": "trace",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "trace_available": true,
+            "tool_calls": 1,
+            "loop_iterations": 2,
+            "retry_count": 0,
+            "max_iter": 6,
+            "stop_reason": "final_answer"
+          }
+        },
+        {
+          "evaluator": "guardrail",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "guardrail_decision": "allow",
+            "guardrail_tool": "mcp_filesystem__get_file_info",
+            "guardrail_event_count": 1
+          }
+        },
+        {
+          "evaluator": "observability",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "observability_available": true,
+            "trace_event_count": 6,
+            "event_types": [
+              "guardrail_decision",
+              "mcp_called",
+              "request_completed",
+              "request_started",
+              "tool_called",
+              "tool_completed"
+            ]
+          }
+        }
+      ],
+      "suite": "phase27-provider-mcp",
+      "metadata": {
+        "failures": []
+      }
+    },
+    "provider_lane": "scripted_factory",
+    "http_requests": 0,
+    "external_model_requests": 0
+  },
+  "openai_compatible_loopback": {
+    "status": "PASS",
+    "provider_turns": 2,
+    "mcp_tool_calls": 1,
+    "schema_passed_unchanged": true,
+    "observation_returned_to_provider": true,
+    "metadata_matches_local_stat": true,
+    "metadata_size_bytes": 78,
+    "final_answer": "PASS",
+    "stop_reason": "final_answer",
+    "eval_harness": {
+      "case_id": "P27-COMPATIBLE-LOOPBACK-MCP-01",
+      "category": "provider_mcp_joint",
+      "passed": true,
+      "failure_reason": null,
+      "latency": 0.031028,
+      "answer": "metadata.txt size: 78 bytes.",
+      "trace_summary": {
+        "available": true,
+        "tool_calls": [
+          {
+            "tool": "mcp_filesystem__get_file_info",
+            "status": "ok"
+          }
+        ]
+      },
+      "route_correct": null,
+      "tool_correct": true,
+      "contract_valid": true,
+      "trace_available": true,
+      "tool_calls": 1,
+      "loop_iterations": 2,
+      "retry_count": 0,
+      "failure_type": null,
+      "process_evaluations": [
+        {
+          "evaluator": "tool",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "tool_correct": true,
+            "expected": [
+              "mcp_filesystem__get_file_info"
+            ],
+            "actual": [
+              "mcp_filesystem__get_file_info"
+            ],
+            "repeated": []
+          }
+        },
+        {
+          "evaluator": "contract",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "contract_valid": true,
+            "kind": "tool_result"
+          }
+        },
+        {
+          "evaluator": "trace",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "trace_available": true,
+            "tool_calls": 1,
+            "loop_iterations": 2,
+            "retry_count": 0,
+            "max_iter": 6,
+            "stop_reason": "final_answer"
+          }
+        },
+        {
+          "evaluator": "guardrail",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "guardrail_decision": "allow",
+            "guardrail_tool": "mcp_filesystem__get_file_info",
+            "guardrail_event_count": 1
+          }
+        },
+        {
+          "evaluator": "observability",
+          "available": true,
+          "passed": true,
+          "failure_type": null,
+          "failure_reason": null,
+          "values": {
+            "observability_available": true,
+            "trace_event_count": 6,
+            "event_types": [
+              "guardrail_decision",
+              "mcp_called",
+              "request_completed",
+              "request_started",
+              "tool_called",
+              "tool_completed"
+            ]
+          }
+        }
+      ],
+      "suite": "phase27-provider-mcp",
+      "metadata": {
+        "failures": []
+      }
+    },
+    "internal_provider_observations": 2,
+    "provider_lane": "existing_openai_compatible_factory_loopback_only",
+    "http_requests": 2,
+    "external_model_requests": 0,
+    "credentials": "synthetic_test_environment_only"
+  },
+  "external_openai_requests": 0,
+  "real_api_key_read": false,
+  "phase23_real_openai_acceptance": "INCOMPLETE_PREVIOUS_HTTP_429"
+}

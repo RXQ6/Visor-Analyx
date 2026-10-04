@@ -1,0 +1,222 @@
+{
+  "date": "2026-09-28",
+  "phase": "2.7",
+  "status": "controllable_provider_real_mcp_joint_validation_passed",
+  "runtime_chain": [
+    "ProviderMCPRuntime",
+    "existing Provider Factory / explicit host-owned scripted factory",
+    "existing AgentLoop",
+    "existing ToolRegistry / Guardrail",
+    "existing MCP Adapter / SDK stdio Client",
+    "official Filesystem MCP get_file_info",
+    "existing ToolResult / truncation / Trace",
+    "same Provider second turn",
+    "final_answer"
+  ],
+  "composition": {
+    "file": "demo/provider_mcp_runtime.py",
+    "explicit_only": true,
+    "default_provider": "deterministic",
+    "provider_modes_or_contract_changed": false,
+    "desktop_worker_or_settings_auto_enabled": false,
+    "factory_failure_before_mcp_start": true,
+    "mcp_failure_without_fallback": true,
+    "closed_runtime_not_reused": true
+  },
+  "lanes": {
+    "scripted": {
+      "provider": "test-only scripted factory",
+      "http_requests": 0,
+      "provider_turns": 2,
+      "real_mcp_calls": 1,
+      "status": "PASS"
+    },
+    "openai_compatible_loopback": {
+      "provider": "existing factory and OpenAICompatibleProvider",
+      "server": "127.0.0.1 ephemeral test service",
+      "credential_source": "isolated synthetic test environment variable",
+      "http_requests": 2,
+      "provider_turns": 2,
+      "real_mcp_calls": 1,
+      "status": "PASS",
+      "external_real_model": false
+    }
+  },
+  "joint_acceptance": {
+    "schema_unchanged": true,
+    "tool_call_adapted": true,
+    "mcp_observation_returned_unchanged": true,
+    "tool_call_id_consistent": true,
+    "final_answer_from_actual_mcp_result": true,
+    "fixture_size_bytes": 78,
+    "metadata_matches_local_stat": true,
+    "trace_call_count_and_event_order_consistent": true,
+    "existing_eval_runner_cases": 2,
+    "process_evaluators": [
+      "tool",
+      "contract",
+      "trace",
+      "guardrail",
+      "observability"
+    ],
+    "evidence": "provider-mcp-joint-smoke.json"
+  },
+  "negative_cases": {
+    "timeout": {
+      "tool_error": "mcp_timeout",
+      "provider_second_turn": true,
+      "harness_failure": "TOOL_EXECUTION_ERROR",
+      "automatic_retry": false
+    },
+    "disconnect": {
+      "tool_error": "mcp_server_unavailable",
+      "provider_second_turn": true,
+      "harness_failure": "TOOL_EXECUTION_ERROR",
+      "automatic_reconnect": false
+    },
+    "invalid_scripted_tool": {
+      "mcp_io": false,
+      "registry_error": "TOOL_NOT_FOUND",
+      "harness_failure": "SECURITY_VIOLATION"
+    },
+    "invalid_compatible_tool": {
+      "mcp_io": false,
+      "provider_error_category": "invalid_response"
+    },
+    "guardrail_block": {
+      "mcp_io": false,
+      "stop_reason": "guardrail_blocked",
+      "additional_provider_turn": false
+    },
+    "repeated_read_tool": {
+      "existing_execution_preserved": true,
+      "harness_failure": "TOOL_SELECTION_ERROR",
+      "trace_retry_count": 1,
+      "new_deduplication": false
+    },
+    "endless_repeat": {
+      "existing_max_iter": 3,
+      "stop_reason": "max_iter",
+      "final_answer": null
+    }
+  },
+  "tests": {
+    "provider": {
+      "passed": 79,
+      "total": 79
+    },
+    "mcp": {
+      "passed": 48,
+      "total": 48,
+      "existing_mock_and_sdk": 24,
+      "real_filesystem": 24
+    },
+    "joint": {
+      "passed": 18,
+      "total": 18,
+      "scripted_and_composition": 13,
+      "compatible_loopback": 5
+    },
+    "mcp_joint_combined": {
+      "passed": 66,
+      "total": 66
+    },
+    "typescript_build": "PASS",
+    "desktop": {
+      "passed": 30,
+      "total": 30
+    },
+    "electron_smoke": "PASS",
+    "electron_e2e": {
+      "status": "PASS",
+      "steps": 9
+    },
+    "desktop_npm_test_exit_zero": true,
+    "node": {
+      "passed": 13,
+      "total": 13
+    },
+    "python": {
+      "passed": 382,
+      "total": 382
+    },
+    "p0": {
+      "passed": 15,
+      "total": 15
+    },
+    "p1": {
+      "passed": 20,
+      "total": 20
+    },
+    "robustness": {
+      "passed": 25,
+      "total": 25
+    },
+    "day19": {
+      "passed": 60,
+      "total": 60
+    },
+    "regression_gate": {
+      "passed": 11,
+      "total": 11
+    }
+  },
+  "desktop_initial_failure": {
+    "step": "1b desktop viewport",
+    "expected_width": 1440,
+    "actual_width": 800,
+    "kind": "Windows viewport transition timeout",
+    "isolated_original_e2e_rerun": "PASS",
+    "full_original_desktop_npm_test_rerun": "PASS",
+    "assertions_or_product_code_modified": false
+  },
+  "day19": {
+    "security_violations": 0,
+    "contract_failures": 0,
+    "latency_seconds": {
+      "average": 0.242742,
+      "p95": 0.653196,
+      "maximum": 0.859442
+    },
+    "baseline_or_threshold_modified": false,
+    "old_cases_modified": false
+  },
+  "safety": {
+    "real_api_key_read": false,
+    "env_file_loaded": false,
+    "external_model_requests": 0,
+    "mcp_write_operations": 0,
+    "mcp_allowed_scope_expanded": false,
+    "mcp_remote_tools": [
+      "get_file_info"
+    ],
+    "mcp_allowed_root": "tests/fixtures/mcp-readonly",
+    "full_environment_copied_to_mcp": false,
+    "credentials_or_config_in_agent_session_trace_renderer": false,
+    "prompt_response_or_authorization_logged": false,
+    "protected_implementation_files_hash_checked": 102,
+    "protected_files_changed": [],
+    "provider_or_mcp_contract_modified": false,
+    "agentloop_workflow_skill_session_memory_hitl_ipc_event_modified": false,
+    "new_dependencies": false
+  },
+  "phase23_real_openai_acceptance": {
+    "complete": false,
+    "previous_text_http_status": 429,
+    "previous_tools_http_status": 429,
+    "new_real_requests_this_phase": 0,
+    "real_final_answer_tool_call_parsing": "unverified",
+    "service_model_compatibility": "unverified",
+    "original_evidence_preserved": "provider-real-smoke.json"
+  },
+  "remaining_limits": [
+    "external_real_model_plus_mcp_not_yet_accepted",
+    "explicit_harness_composition_only_no_settings_desktop_or_installer_update",
+    "fixed_public_fixture_root_not_general_user_directory_authorization",
+    "stdio_process_with_host_os_identity_not_an_os_sandbox",
+    "existing_repeat_detection_and_max_iter_no_new_deduplication",
+    "windows_viewport_e2e_timing_flake_observed_reruns_passed",
+    "optional_pinned_mcp_dependencies_required_original_schema_subset"
+  ],
+  "next_phase_started": false
+}

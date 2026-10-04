@@ -4,6 +4,7 @@ import { datasetDescription, humanAction, humanError, humanRisk, humanStatus, pr
 import { describeProductState, isStaleError, productStateFromRun, type ProductState } from "./product-state";
 import { OrderedRunProjector, eventBelongsToSession, type ApprovalProjection, type RunProjection } from "./run-state";
 import { projectTrace, type TraceEntry } from "./trace-panel";
+import { installSettings } from "./settings";
 
 const input = required<HTMLInputElement>("#run-input");
 const sendButton = required<HTMLButtonElement>("#run-submit");
@@ -69,6 +70,21 @@ const analysisSummary = required<HTMLElement>("#analysis-summary");
 const analysisSummaryContent = required<HTMLElement>("#analysis-summary-content");
 const conversationPanel = required<HTMLDetailsElement>("#conversation-panel");
 const recentAnalyses = required<HTMLElement>("#recent-analyses");
+const datasetFilename = required<HTMLElement>("#dataset-filename");
+const datasetFilemeta = required<HTMLElement>("#dataset-filemeta");
+const datasetFormat = required<HTMLElement>("#dataset-format");
+const datasetFieldsPanel = required<HTMLElement>("#dataset-fields-panel");
+const datasetFields = required<HTMLUListElement>("#dataset-fields");
+const datasetFieldCount = required<HTMLElement>("#dataset-field-count");
+const evidenceEmpty = required<HTMLElement>("#evidence-empty");
+const evidenceSource = required<HTMLElement>("#evidence-source");
+const evidenceFilename = required<HTMLElement>("#evidence-filename");
+const evidenceRows = required<HTMLElement>("#evidence-rows");
+const evidenceColumns = required<HTMLElement>("#evidence-columns");
+const resultSurface = required<HTMLElement>("#result-surface");
+const answerSource = required<HTMLElement>("#answer-source");
+const composerFile = required<HTMLElement>("#composer-file");
+const traceState = required<HTMLElement>("#trace-state");
 
 type RetryAction = () => Promise<void>;
 
@@ -80,6 +96,7 @@ let currentProductState: ProductState = "loading";
 let currentRetry: RetryAction | null = null;
 let lastRunRequest: RunsStartInput | null = null;
 let activePage: "workspace" | "settings" = "workspace";
+const settingsControls = installSettings();
 let currentSessionTitle = "新分析";
 let sessionLoadVersion = 0;
 const sessionTitles = new Map<string, { updatedAt: string; title: string }>();
@@ -335,6 +352,7 @@ sendButton.addEventListener("click", () => {
 });
 
 async function startRun(request: RunsStartInput, appendUser: boolean): Promise<void> {
+  if (window.innerWidth > 900) tracePanel.open = true;
   sendButton.disabled = true;
   setButtonBusy(sendButton, true, "发送中…", "发送");
   renderProductState("loading");
@@ -508,6 +526,7 @@ function hydrateSession(snapshot: SessionSnapshot): void {
   analysisSummaryContent.replaceChildren();
   analysisSummary.hidden = true;
   renderTrace(projectTrace(snapshot.events, { useInputOrder: true }));
+  if (snapshot.events.length > 0 && window.innerWidth > 900) tracePanel.open = true;
   for (const message of snapshot.messages) {
     const role = message.role;
     const content = message.content;
@@ -557,6 +576,8 @@ function renderProductState(state: ProductState): void {
   productStateView.dataset.state = state;
   statusView.textContent = humanStatus(state);
   statusView.dataset.state = state;
+  traceState.textContent = humanStatus(state);
+  traceState.dataset.state = state;
   stateLabel.textContent = humanStatus(state);
   stateHappening.textContent = description.happening;
   stateContinuation.textContent = description.canContinue;
@@ -599,6 +620,29 @@ function renderDataset(dataset?: DatasetSummary): void {
   datasetView.textContent = dataset ? datasetDescription(dataset) : "尚未选择数据文件";
   datasetView.title = dataset?.filename ?? "尚未选择数据文件";
   datasetOverview.hidden = !dataset;
+  datasetFilename.textContent = dataset?.filename ?? "尚未选择文件";
+  datasetFilename.title = dataset?.filename ?? "尚未选择文件";
+  datasetFilemeta.textContent = dataset ? "当前分析使用的数据" : "CSV / XLSX · 每次分析一个文件";
+  datasetFormat.hidden = !dataset;
+  datasetFormat.textContent = dataset?.format.toUpperCase() ?? "";
+  datasetFieldsPanel.hidden = !dataset || dataset.columns.length === 0;
+  datasetFieldCount.textContent = dataset ? String(dataset.columnCount) : "";
+  datasetFields.replaceChildren(...(dataset?.columns ?? []).map((column, index) => {
+    const row = document.createElement("li");
+    const label = document.createElement("span");
+    label.className = "dataset-field-name";
+    label.textContent = typeof column.name === "string" ? column.name : `字段 ${index + 1}`;
+    const type = document.createElement("span");
+    type.className = "dataset-field-type";
+    type.textContent = fieldTypeLabel(column);
+    row.append(label, type);
+    return row;
+  }));
+  evidenceEmpty.hidden = Boolean(dataset);
+  evidenceSource.hidden = !dataset;
+  evidenceFilename.textContent = dataset?.filename ?? "";
+  evidenceRows.textContent = dataset ? `${new Intl.NumberFormat("zh-CN").format(dataset.rowCount)} 行` : "";
+  evidenceColumns.textContent = dataset ? `${dataset.columnCount} 个字段` : "";
   metricCards.replaceChildren();
   if (dataset) {
     datasetOverviewName.textContent = dataset.filename;
@@ -613,13 +657,26 @@ function renderDataset(dataset?: DatasetSummary): void {
       metricCards.append(card);
     }
   }
-  welcomeTitle.textContent = dataset ? "数据已就绪，开始提问。" : "把问题交给数据。";
+  welcomeTitle.textContent = dataset ? "数据已就绪，开始发现价值。" : "从一个问题，开始了解数据。";
   welcomeCopy.textContent = dataset
-    ? "围绕当前文件提出问题。分析结果与图表会显示在这里。"
-    : "选择一个 CSV 或 XLSX 文件，然后用自然语言提问。分析结果、图表与过程会汇集在这里。";
+    ? "比较地区表现、查看销售趋势，或围绕当前文件提出你关心的问题。"
+    : "选择一份数据，用自然语言提问。结论、图表与分析依据集中呈现。";
   welcomeSelect.textContent = dataset ? "提出问题" : "选择数据文件";
   analysisContext.textContent = dataset ? datasetDescription(dataset) : "选择数据并提出问题。";
+  required<HTMLElement>("#welcome-data-step").classList.toggle("step-complete", Boolean(dataset));
+  required<HTMLElement>("#welcome-question-step").classList.toggle("step-current", Boolean(dataset));
   renderContextHeader();
+}
+
+function fieldTypeLabel(column: Record<string, unknown>): string {
+  const raw = typeof column.dtype === "string" ? column.dtype : typeof column.type === "string" ? column.type : "";
+  if (raw === "mixed_date") return "混合日期";
+  if (raw === "mixed") return "混合类型";
+  if (/date|time/i.test(raw)) return "日期";
+  if (/int|float|number|numeric|decimal/i.test(raw)) return "数值";
+  if (/bool/i.test(raw)) return "布尔";
+  if (/object|string|text|category/i.test(raw)) return "文本";
+  return "字段";
 }
 
 function syncContentVisibility(): void {
@@ -627,6 +684,7 @@ function syncContentVisibility(): void {
   chartsHeading.hidden = charts.childElementCount === 0;
   welcome.hidden = currentProductState !== "empty" || messages.childElementCount > 0 || charts.childElementCount > 0;
   analysisHeader.hidden = !welcome.hidden;
+  resultSurface.hidden = analysisSummary.hidden && charts.childElementCount === 0;
 }
 
 function renderContextHeader(): void {
@@ -635,6 +693,8 @@ function renderContextHeader(): void {
   analysisTitle.textContent = currentSessionTitle;
   headerDataset.textContent = selectedDataset?.filename ?? "尚未选择";
   headerDataset.title = selectedDataset?.filename ?? "尚未选择";
+  composerFile.textContent = selectedDataset?.filename ?? (currentThreadId ? "已恢复当前会话" : "尚未选择数据文件");
+  answerSource.textContent = "来自当前会话的分析结果";
   syncSessionSelection();
 }
 
@@ -703,6 +763,7 @@ function showPage(page: "workspace" | "settings"): void {
   workspaceOpen.classList.toggle("is-active", page === "workspace");
   settingsNav.classList.toggle("is-active", page === "settings");
   setSidebarOpen(false);
+  if (page === "settings") void settingsControls.refresh();
 }
 
 function setSidebarOpen(open: boolean): void {
@@ -715,7 +776,7 @@ function setSidebarOpen(open: boolean): void {
 function installResizer(handle: HTMLElement, side: "left" | "right"): void {
   const minimum = side === "left" ? 208 : 280;
   const maximum = side === "left" ? 340 : 440;
-  const defaultWidth = side === "left" ? 248 : 320;
+  const defaultWidth = side === "left" ? 228 : 296;
   const property = side === "left" ? "--left-width" : "--right-width";
   const storageKey = side === "left" ? "workspace.leftWidth" : "workspace.rightWidth";
   const update = (width: number): void => {
@@ -802,8 +863,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 renderContextHeader();
 renderProductState("loading");
 setSidebarOpen(false);
+let wasWideViewport = window.innerWidth > 900;
 window.addEventListener("resize", () => {
-  if (window.innerWidth > 900) setSidebarOpen(false);
+  const isWideViewport = window.innerWidth > 900;
+  if (wasWideViewport && !isWideViewport) tracePanel.open = false;
+  if (isWideViewport || !workspace.classList.contains("sidebar-open")) setSidebarOpen(false);
+  wasWideViewport = isWideViewport;
 });
 if (typeof window.agent?.onAgentEvent === "function" && typeof window.agent.listSessions === "function") {
   document.body.classList.add("runtime-ready");

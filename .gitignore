@@ -1,3 +1,11 @@
 __pycache__/
 *.py[cod]
 
+# Local credentials stay on this computer.
+.env
+.env.*
+!.env.example
+
+desktop/.packaging-deps/
+desktop/phase29-protected-before.json
+

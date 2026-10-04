@@ -1,6 +1,364 @@
 # 项目进度
 
-更新时间：2026-09-26
+更新时间：2026-10-04
+
+## 用户授权：证据工作台 UI
+
+- 按用户“我要证据工作台，现在做”实现真实 Electron 界面；生产变更仅 Renderer
+  index.html / index.ts / styles.css。增加文件卡、真实字段、三栏结果/过程/数据依据、
+  示例问题卡与整合提问区；跨入窄屏折叠过程面板。保持原文件选择、停止、审批、重试、
+  Session 恢复和 Settings 绑定。没有新增分析能力、前端统计或虚构数据行。
+- 新增 verify-evidence-workbench.cjs / evidence-workbench-probe.cjs，真实 dev / packaged /
+  installed 各 7 项 UI 专项（21/21）PASS；原窗口/IPC 自动专项各 8 项（24/24）PASS。
+  真实 CSV 5 行/4 字段、求和 1580、地区图表华南 1,200 / 华东 380、宽/窄屏均符合预期。
+  chooser 回答由测试提供，注册、计算和 Runtime 事件真实；没有新增人工原生选择声明。
+- 独立最终 NSIS 构建及真实当前用户安装完成，exit 0。安装目录
+  desktop/release/evidence-workbench-installed-final-20261002；最终安装包
+  desktop/release/evidence-workbench-final-20261002/Data Analysis Agent Setup 0.1.0.exe，
+  SHA256 69803815A3B5037058AFFF3AE17B95D981C0D844B24FB3AE6B5C16A96C47200C。
+  打包/安装实际 exe 双启动 smoke、Settings/HITL/Session 恢复、资源审计及私有 MCP 集成 PASS。
+- 回归 PASS：TypeScript、Desktop 38/38、Electron smoke、dev E2E 10 步、Node 13/13、Python
+  400/400、P0 15/15、P1 20/20、Robustness 25/25、Day19 60/60、Regression Gate 11/11；
+  security violations=0、contract failures=0。原测试/评测断言未修改。
+- 275 个受保护源码/测试 SHA256 不变，打包/安装 Renderer 三项资源与构建逐字节一致；
+  历史 Phase 2.9 安装包 SHA256 不变。没有改 Main/Preload/IPC、Python Runtime、Provider/MCP
+  contract、AgentLoop/Workflow/Session/Memory/HITL 或真实工具计算，不修改 AGENTS.md。
+- README 与 docs/Desktop-Evidence-Workbench.md 已更新安装版真实截图；结果见
+  tests/results/evidence-workbench-ui-regression.json。构建与验收在 10-02～03 完成，10-04
+  核对交付记录。未发布 Release；历史首次窗口消失根因与 Phase 2.3 的 HTTP 429 缺口保留，
+  不将 Phase 2.9 标记为最终完全通过，不进入新业务 Phase。
+
+## Phase 2.9.1 原生文件选择 / BrowserWindow / IPC 专项排查
+
+- 完成生产 Main/Preload/Renderer 文件选择链路只读审查，以及 dev、真实 unpacked、
+  真实 installed exe 的专项复验；没有发现或复现 CSV 业务路径主动关窗。showOpenDialog
+  parent 正确，取消、注册失败与重试不清理窗口或 IPC；显式 reload 后仍能选择和分析。
+- 新增 desktop/scripts/verify-window-lifecycle.cjs 与 desktop/tests/window-lifecycle-probe.cjs，
+  隔离 userData，记录生命周期、OS system command 与 JS 关窗方法，校验窗口可见、未
+  最小化、ID 不变、Session IPC 与真实 run_completed。没有固定 sleep、旧测试放宽或功能新增。
+- native 首次真实 Windows 选择由用户操作，其余 chooser 返回为测试值、注册/计算真实；
+  三种形态各 9 项（27/27）PASS。自动专项各 8 项（24/24）PASS，数值断言仍为 1580。
+  证据分别在 phase291-dev-native-yPfBbP、phase291-packaged-native-Thz0Lb、
+  phase291-installed-native-edVUCU/result.json。完整说明和汇总见
+  docs/Desktop-Window-Lifecycle-Investigation.md、tests/results/window-lifecycle-phase291-regression.json。
+- 本轮曾观察工具模态元素缓存错误、窗口最小化及不同 CSV 选择导致测试 fixture 断言失败。
+  初始 runner 的失败清理会终止测试进程，后改为 native 失败保留窗口供检查。诊断采用正常
+  可见启动；原生选择核对真实选项与摘要，独立固定 fixture 保持业务数值断言。
+  这些是本轮验收干扰证据，**历史首次消失的准确根因仍未证实**，没有盲改产品窗口逻辑。
+- 最终 PASS：TypeScript、Desktop 38/38、Electron smoke、dev/packaged E2E 各 10 步、
+  unpacked/installed 双启动 smoke、sidecar、两套资源及 Provider/MCP 集成检查、Node 13/13、
+  Python 400/400、P0 15/15、P1 20/20、Robustness 25/25、Day19 60/60、Regression Gate 11/11；
+  security violations=0、contract failures=0。沙箱 GPU/DLL 错误按正常权限原样复跑；dev
+  诊断缺 Node 的 PATH 仅修测试启动条件。65 个受保护 Python 文件 SHA256 一致。
+- 未改 Python Runtime、Provider/MCP contract、AgentLoop/Workflow/Session/HITL、业务窗口
+  实现或评测标准；未重建安装包、未发布。Phase 2.3 的 HTTP 429 真实验收缺口继续保留。
+  本次排查/复验结束，Phase 2.9 暂不标为最终完全通过，不进入后续阶段。
+
+## Phase 2.9 Provider / MCP / Settings Windows 打包集成
+
+- 完成固定依赖打包、NSIS 构建、真实当前用户安装及安装 exe 两次启动自动验收。
+  新安装包为 desktop/release/Data Analysis Agent Setup 0.1.0.exe，147326044 bytes，
+  SHA256 B13822E0F59505593ECF48C292DF960259250F0B22834EAE87742AA9CB02F89A。
+  实际安装目录 desktop/release/phase29-installed-20260930，未上传 Release 或创建 tag。
+- 打包最新 providers、runtime_settings、Settings Main/Preload/Renderer，私有 Python 3.12
+  和 Node，MCP SDK 2.2.0 / 29 个固定 Python distribution，以及官方 Filesystem Server
+  2026.8.31 / 103 个固定 npm 包。wheel RECORD 逐文件完整性校验，缺文件或版本不符
+  阻止构建；不复制开发机 site-packages、.env、用户配置或环境变量值。安装环境私有
+  Node 缺失时返回错误，禁止通过全局 PATH 补位。公开 fixture 根和单工具权限保持不变。
+- 两套最终资源审核 PASS，安装/打包 resources 的 6549 文件无 .env、用户 Settings 或
+  .git，源码/编译资源一致。实际 exe smoke 不继承开发 PATH/Python/Key，独立 userData。
+  默认 deterministic、MCP disabled；外部配置页正常、缺凭据明确失败；MCP ready/停用
+  正常，普通 CSV 分析 1580、HITL 暂停/拒绝和后续分析正常。退出/重启恢复配置、Session
+  11 messages / 20 个过程事件及原 trace，不触发新运行。私有 runtime 实际 Registry
+  MCP call_tool 返回 78 bytes，目录越界拒绝，缺 Server/Node/SDK 返回结构化错误。
+- Windows 界面复核确认首页、Settings、外部字段、只读信息、原生文件对话框显示正常。
+  补充原生 CSV 选择步骤未完成：窗口绑定丢失后窗口不再可定位，原因未确认；不能记为
+  人工分析 PASS。实际 exe 自动 smoke 的文件 chooser 回答确定，其余链路真实。
+- 最终 PASS：TypeScript、Desktop 38/38、Electron smoke、开发/打包 E2E 各 10 步、
+  packaged smoke、installed smoke、Provider 79/79、MCP 48/48、联调 18/18、Python Settings
+  14/14、新打包安全 4/4、Node 13/13、Python 400/400、P0 15/15、P1 20/20、Robustness 25/25、
+  Day19 60/60、Regression Gate 11/11，security violations=0、contract failures=0。
+  打包 E2E 首轮 1600→1601px 窗口量化偏差，独立原样复跑 PASS，断言未放宽。
+  64 个核心 Python 文件 SHA256 一致；Provider/MCP、AgentLoop、Workflow、Skill、Session、
+  Memory、HITL、Registry/Guardrail、Dataset/Chart、原分析 IPC/Event 与评测标准未改。
+- Phase 2.3 仍未完成：历史两次真实 OpenAI 均 HTTP 429。本轮真实 Key 读取与外部模型
+  请求均为 0。未签名、Windows x64/公开 fixture/非 OS 沙箱的限制保留。本阶段停止。
+  说明：docs/Desktop-Packaged-Provider-MCP-Acceptance.md；证据：
+  tests/results/packaged-integrations-phase29-regression.json。
+
+## Phase 2.8 Desktop Provider / MCP 配置接入
+
+- Settings 支持 deterministic（本地 / 测试）和 openai-compatible（外部模型），只填写
+  model_name、endpoint、api_key_env。显示已应用模式、凭据可用性、安全错误与 MCP 只读
+  状态/范围摘要/已注册工具；其他集成仍规划中。没有真实 Key 输入、读取接口或远端连接
+  测试按钮，工程配置只出现在 Settings。原 Empty/Session/Analysis/Chart/Approval/Retry
+  等界面与业务事实源不变。
+- 新增独立 window.desktopSettings API（getSettings/applySettings），沿 Renderer →
+  sandboxed Preload → Main SettingsController/SettingsStore → Runtime 配置命令/response
+  → 原 Factory/MCPHost 应用配置。原 window.agent、已有分析/Session/审批 IPC 与 Runtime
+  Event envelope 保留；配置 response 不广播为 AgentEvent，不入 Session/Trace。
+- Main 只在 userData/runtime-settings.json 保存严格固定的非敏感配置，临时文件 + rename；
+  保存失败恢复原 Runtime 配置。损坏文件阻止分析，可显式有效保存修复。应用/Supervisor
+  重启恢复元数据；恢复外部模式时缺凭据仍保留外部配置和错误，阻止新分析，不 fallback。
+  当前运行未结束时禁止应用配置。Desktop 初次默认 deterministic、Filesystem MCP 停用。
+- Runtime Supervisor 持有配置，私有 worker 环境只传非敏感快照，不把配置附入 run.start、
+  问题、messages 或持久化。原 Factory 构造只检查所引环境凭据，不发模型请求；只有原
+  Provider 在 Runtime 读取 Key。Main/Runtime 双重拒绝未知字段、密钥字段/格式、带凭据
+  的 URL 和 MCP 权限扩展；原 Provider 检测配置含凭据时，只回安全错误，不回传该配置。
+- Filesystem 开关复用 Phase 2.6 原官方 Server、固定 tests/fixtures/mcp-readonly 根和
+  get_file_info 单工具白名单。预检真实启动/list_tools 后关闭临时 Host，分析 worker 原
+  Registry 组装显式接入，正常退出关闭。Renderer 不能配置 root/command/env/工具/写权限，
+  SDK env={} 不传 Provider 配置/Key；旧 HITL/mock 工具仍保持原行为。
+- 新增 Desktop Settings 专项 8/8、Python 配置专项 14/14。覆盖默认/切换、缺字段/凭据、
+  MCP 启停/不可用/越权拒绝、普通配置保存/恢复/损坏修复、合成凭据隔离、隐藏于元数据
+  的凭据拒绝、busy 状态及实际 worker 的 Provider → MCP → Observation → final_answer。
+  本机 HTTP worker 案例 2 轮请求、1 次真实 MCP，公开文件 78 bytes，与本机事实一致，
+  Session/Trace/日志无 Key、endpoint 或环境变量引用。原 E2E Settings 断言按已批准新页面
+  更新并新增第 8 步，旧窗口、文件、分析、取消、Session、HITL 断言保留，未放宽门禁。
+- 最终 PASS：TypeScript、Desktop 38/38、Electron smoke/E2E 10 步、Provider 79/79、
+  MCP 48/48（旧 Mock/SDK 24 保留）、Phase 2.7 联调 18/18、Node 13/13、Python 396/396、
+  P0 15/15、P1 20/20、Robustness 25/25、Day19 60/60、Regression Gate 11/11；security
+  violations=0、contract failures=0，Day19 average/p95/max=0.244/0.652/0.803s。
+  79 个核心 Python 文件阶段前后 SHA256 一致，未改 Provider/MCP contract 或实现、
+  AgentLoop、Workflow、Skill、Session、Memory、HITL、Registry/Guardrail、Dataset/Chart。
+- sidecar staging 已重建并隔离实测新 Settings/Runtime 模块导入和默认 deterministic。
+  未重建 NSIS；基础 sidecar 不自动打包可选 MCP npm Server/Python SDK，缺依赖明确失败。
+  README/说明新增真实 Electron 截图；证据 tests/results/desktop-settings-phase28-regression.json，
+  文档 docs/Desktop-Provider-MCP-Settings.md。原正式评测报告按实际运行刷新，标准未改。
+- **Phase 2.3 真实 OpenAI 验收仍未完成，历史两次 HTTP 429。** 本轮未加载 .env、未使用
+  真实 Key、未请求 OpenAI；全部真实网络 Provider 验证仅本机合成测试，不证明远端兼容。
+  凭据可用性不代表服务可用；固定公开目录/Windows stdio/非 OS 沙箱等边界保留，未新增
+  Provider、MCP Server、目录授权或重试。Phase 2.8 完成后停止，不进入下一阶段。
+
+## Phase 2.7 Provider 与真实 MCP 可控联调
+
+- 新增 `demo/provider_mcp_runtime.py`，只做显式应用组装与生命周期管理：原 Provider
+  Factory → 原 AgentLoop → 原 ToolRegistry/Guardrail → 原 MCP Adapter/SDK stdio →
+  同一个官方 Filesystem MCP → 原 ToolResult/Observation → 同一 Provider 第二轮 →
+  final_answer。默认 Factory 仍为 deterministic；组装失败明确结束、不 fallback，
+  关闭后不能复用。没有自动接 Desktop worker/Settings，没有新增 Provider 模式或协议。
+- 先通过 scripted Provider 的无 HTTP 闭环，再通过原 Factory 创建原 OpenAICompatibleProvider，
+  连接本机 127.0.0.1 可控测试服务。服务脚本选择工具，文件事实仍来自真实 MCP；使用独立
+  合成凭据环境变量，不复制整个环境、不加载 .env、不读取真实 Key、不访问 OpenAI。
+  schema 原样传入，两轮 tool_call_id 与实际 Observation 一致；两通道均 1 次 MCP、2 轮
+  Provider，最终文件大小 78 bytes，与本机 stat 一致。原 EvalRunner 五个 evaluator 全 PASS。
+- 新增联调专项 `tests/test_provider_mcp_joint.py` 18/18（scripted/组装 13、本机 compatible 5），
+  覆盖选择 MCP、第二轮回填、final_answer、实际 HTTP 适配、凭据/配置/usage 隔离、timeout、
+  disconnect、非法工具、Guardrail、重复调用、max_iter、Trace/Eval 一致和关闭清理。
+  延迟/断线沿用同一真实 Server 的测试 relay；错误 Observation 回 Provider 但原 Eval 仍判
+  工具失败。非法工具不触达 MCP，Guardrail block 立即结束；重复只读调用仍按原行为执行，
+  由原 Trace/Eval 判失败，一直重复由原 max_iter 终止，不新增 Loop 去重或自动重试。
+- AgentLoop、Workflow、Skill、Session、Memory、HITL、Desktop IPC/Event、Provider/MCP
+  contract、Provider Factory/adapter、MCP Client/adapter、Registry/Guardrail、旧评测标准
+  均未修改；102 个受保护实现文件的阶段前后 SHA256 一致。固定 fixture 根与 get_file_info
+  白名单不变，无写操作、无新依赖；内部观测不接 Session/Trace/Renderer。
+- 最终回归 PASS：Provider 79/79、MCP 48/48（原 Mock/SDK 24 保留）、联调 18/18、TypeScript、
+  Desktop 30/30、Electron smoke/E2E 9 步、Node 13/13、Python 382/382、P0 15/15、P1 20/20、
+  Robustness 25/25、Day19 60/60、Regression Gate 11/11；security violations=0、
+  contract failures=0，Day19 average/p95/max=0.243/0.653/0.859s。首轮 Electron E2E 在
+  800→1440px 的 Windows 窗口切换超时；原 E2E 单独复跑和完整 npm test 复跑均通过，
+  未修改桌面代码或断言。时序波动作为风险保留，不伪装首次通过。
+- 证据：`tests/results/provider-mcp-joint-smoke.json`、
+  `tests/results/provider-mcp-phase27-regression.json`；说明：
+  `docs/Provider-MCP-Joint-Validation.md`，README 新增入口；原正式评测输出按实际运行刷新。
+  **Phase 2.3 真实 OpenAI 验收仍未完成：历史两次 HTTP 429，没有成功模型响应。**
+  原真实证据保留，外部模型请求为 0，本机测试不能证明真实模型/MCP 联调或服务兼容性。
+  仍为 Windows stdio、固定公开目录、显式 Harness 组装；白名单不是 OS 沙箱，未重建 NSIS，
+  原 Schema 子集与 Resources/Prompts/HTTP 边界不变。Phase 2.7 可控联调完成后停止。
+
+## Phase 2.6 第一个真实只读 MCP 接入
+
+- 接入官方 `@modelcontextprotocol/server-filesystem@2026.8.31`，新增独立可选 npm
+  package/lock/.gitignore，不修改 P0/desktop 依赖；沿用 `requirements-mcp.txt` 的 SDK 2.2.0。
+  `mcp_adapter/readonly_filesystem.py` 提供显式组装，固定公开 fixture 根、固定 Server JS、
+  宿主 Node 和 get_file_info 单工具白名单。默认 Runtime/Desktop/Registry 不自动启用。
+- 真实调用严格走原 MCPHost、SDK stdio Client、Adapter、ToolRegistry、参数校验、Guardrail、
+  AgentLoop、ToolResult、截断和 Trace。只查文件/目录 stat，不读正文或执行写动作。
+  Registry 只新增 `mcp_filesystem__get_file_info`；越界、父目录、前缀相邻目录均被 Server
+  拒绝，写/编辑/移动/读取正文/shell 工具不可被 Agent 调用。env={} 不复制整个环境，
+  API Key/Provider 配置/NODE_OPTIONS 不传给 Server，不加载 .env 或读取真实密钥。
+- Client 仅修正 SDK wire/structured output 校验错误的安全分类，沿用原 mcp_protocol_error
+  和固定文案，不保留校验输入；断线仍服务不可用。新增正有限启动超时校验、初始化取消与
+  有界 SDK 清理，关闭后的迟到初始化不遗留空闲进程。AgentLoop、Workflow、Skill、Provider、
+  Registry、Guardrail、Session、Memory、HITL、Desktop IPC/Event 均未改。
+- 新增 `tests/test_mcp_filesystem.py` 24/24，总 MCP 专项 48/48，原 Mock/SDK 24/24 不变。
+  覆盖实际启动/discovery/schema/注册/call/ToolResult、只读边界、参数校验、Guardrail、截断、
+  环境隔离、失败清理；测试 relay 代理同一官方 Server，在真实 stdio 上注入非法 schema、
+  非法/缺字段响应、断线和延迟。timeout/显式取消观察到 SDK cancellation notification，
+  请求等待结束且连接可复用；不声称回滚已经完成的 stat。测试临时标记不属于 MCP 写工具。
+- 新增 `tests/mcp_filesystem_smoke.py`，真实 AgentLoop 案例在原 EvalRunner 内执行，原
+  Tool/Contract/Trace/Guardrail/Observability evaluator 全通过。实际元数据匹配本机 stat，
+  公开文件大小 78 bytes；输出仅安全摘要。没有改 Day19 60 个旧案例、评测预期或 Gate。
+- 最终全量 PASS：Provider 79/79、TypeScript、Desktop 30/30、Electron smoke/E2E 9 步、
+  Node 13/13、Python 364/364、P0 15/15、P1 20/20、Robustness 25/25、Day19 60/60、
+  Regression Gate 11/11；security violations=0、contract failures=0；Day19
+  average/p95/max=0.255/0.697/0.846s。报告：tests/results/mcp-filesystem-smoke.json、
+  tests/results/mcp-phase26-regression.json；说明：docs/MCP-Readonly-Filesystem.md，README
+  新增可选接入文档入口。原正式评测报告按实际运行刷新，baseline/threshold 未改。
+- **Phase 2.3 真实验收仍未完成：原两次 OpenAI 调用 HTTP 429，无成功 final_answer/tool_call。**
+  本轮无真实模型请求、不处理 429、不改 Provider 架构，历史证据保留。当前为显式 Harness
+  集成，未接 Settings/Desktop worker、未重建 NSIS；固定 fixture 根不是用户目录授权，
+  stdio 进程仍按宿主 OS 身份运行，白名单不等于 OS 沙箱。仅验收 Windows，Schema 子集、
+  Resources/Prompts/HTTP 仍保持原边界。Phase 2.6 完成后停止，不进入 Phase 2.7。
+
+## Phase 2.5 Provider 可靠性与观测
+
+- `providers/errors.py` 新增统一六类服务 category 与 classify_provider_error()：auth_error、
+  rate_limited、timeout、network_error、invalid_response、provider_unavailable。429/5xx
+  分别抛 ProviderRateLimitedError / ProviderUnavailableError，均继承旧 ProviderHTTPError；
+  原 code/message envelope 不变，固定错误文案，无错误正文/底层异常链，无自动重试。
+  原本地配置与输入校验仍使用独立错误码，不误报服务响应；调用期间缺凭据归 auth_error。
+- ProviderConfig 新增 timeout_seconds，默认 30 秒，上限 120 秒且必须为正有限数。
+  显式真实模式可用 DATA_AGENT_PROVIDER_TIMEOUT_SECONDS 配置；无效值明确失败，
+  不钳制、不回退。原构造器 timeout 参数保留并受同一校验；deterministic 不读取该环境项。
+  当前为 urllib socket 超时，不是 DNS、全部读写和适配过程的硬总时限。
+- 新增 `providers/observability.py`，每次真实 complete 记录安全 provider/model 标识、
+  单调时钟 latency_ms、可选服务 input/output tokens 和 request_id、固定错误 category/code。
+  usage 仅采纳合法非负整数，不估算；优先 x-request-id，显式 body.request_id 作为缺省，
+  不把 completion.id 当请求 ID。非法/缺失 usage 为 None，错误正文不采纳 usage。
+- 观测为默认 64 条、最大 256 条的独立有锁内存记录，snapshot 不可变，to_dict 为副本；
+  故障隔离不覆盖模型结果。只复制白名单标量，标识符长度/字符校验与完整回显过滤；
+  不保存 endpoint、凭据引用、API Key、Authorization、prompt/response/完整错误正文。
+  无 logger/持久化/exporter，不连接 TraceCollector，不进入 Agent state、Session、Trace、
+  IPC/Event 或 Renderer。记录随 worker 退出消失；deterministic 实现保持原样。
+- 新增可靠性专项 22/22，Provider 合计 79/79，覆盖 timeout 配置/上限、401/403、429、
+  5xx、network、malformed、usage、latency、request ID、敏感元数据剔除、故障隔离、
+  有界不可变记录和实际 Runtime→原确定性 sales.csv 工具→Session/Trace/事件/日志隔离。
+  原配置测试仅扩展新增 timeout 的字段/环境读取集合断言，未放宽原评测或 Mock 行为预期。
+- 最终回归全部 PASS：TypeScript build、Desktop 30/30、Electron smoke、Electron E2E
+  9 步、Node 13/13、Python 340/340、P0 15/15、P1 20/20、Robustness 25/25、Day19
+  60/60、Regression Gate 11/11，security violations=0、contract failures=0。
+  Python/Electron 在正常桌面权限下验收；测试默认 deterministic。sidecar staging 已重建，
+  隔离目录实测可靠性/观测/Runtime/SSL 导入 PASS；未重建 NSIS。
+  结果：tests/results/provider-phase25-regression.json；说明：docs/Provider-Reliability.md。
+- 未改 AgentLoop、Workflow、Skill、Session、Memory、HITL、Desktop IPC/Event contract、
+  Tool Registry/handlers、Dataset/Chart、Node P0 或依赖。本轮未读真实 API Key、未加载 .env、
+  未请求真实模型服务；原 Phase 2.3 两次 HTTP 429 证据未改，真实响应/工具适配与服务/模型
+  兼容性仍未验证，**Phase 2.3 仍未完成最终验收**。Phase 2.5 离线验收完成后停止。
+  剩余限制：观测不持久化，超时非硬总时限，元数据可能保守剔除，不能保证识别任意变形
+  凭据回显；已有安装版不自动更新。不进入下一阶段。
+
+## Phase 2.4 Real / Deterministic 双模式切换
+
+- 在 `providers/config.py` 增加最小 `load_provider_config()` 并导出；只读取四个非密钥
+  选择项：`DATA_AGENT_PROVIDER_ID`、`DATA_AGENT_MODEL_NAME`、`DATA_AGENT_PROVIDER_ENDPOINT`、
+  `DATA_AGENT_API_KEY_ENV`。不加载文件或 .env，不读取实际密钥。selector 缺省或显式
+  deterministic 时不读取其他字段，不联网；额外 model/endpoint/引用不隐式开启真实模式。
+- Runtime 普通 worker 仅在原模型组装位置加载配置并注入已有 factory。显式 compatible
+  使用已有 OpenAICompatibleProvider；缺配置/空选择/缺凭据/未知 Provider 明确失败，
+  不 fallback。配置错误使用原 run_failed 的 error.code/message 返回安全结构化错误，
+  不改 Event envelope。配置不进入 JSONL command、Workflow/Agent 状态或 Session/Trace。
+  原无参数 factory/build_workflow 仍为 deterministic，审批 worker 原工具恢复逻辑未改。
+- 新增切换专项 `tests/test_provider_selection.py` 15/15，合计 Provider 57/57。
+  覆盖默认/显式两种模式、缺项/缺密钥/未知项、禁止 fallback、Skill 两种模式同实例复用、
+  原 Desktop 默认输出一致、失败与 HTTP auth 错误不回显敏感配置，以及实际独立 worker
+  继承环境后通过本地 HTTP 与原统计工具完成 sales.csv 总和 1580。合成凭据/配置未进入
+  Session、Trace、日志、对外事件或 HTTP 消息正文。新增测试初跑的字段子串断言误匹配
+  invalid_provider_config 错误码，已改为检查准确 JSON 键；未改原测试或评测标准。
+- 最终全量回归：TypeScript build、Desktop 30/30、Electron smoke、Electron E2E 9 步、
+  Node 13/13、Python 318/318、P0 15/15、P1 20/20、Robustness 25/25、Day19 60/60、
+  Regression Gate 11/11 全 PASS，security violations=0、contract failures=0。
+  Python 全量与 Electron 使用正常桌面权限，测试环境显式 deterministic。
+  sidecar staging 已重建并在隔离工作目录实测配置/Runtime/SSL 导入；未重建 NSIS。
+  安全回归汇总见 tests/results/provider-phase24-regression.json。
+- 新增 `docs/Provider-Mode-Selection.md`，补充原 Provider 文档与 CURRENT_TASK 的实际
+  模式选择/重启要求。未改 AgentLoop、Workflow、Skill、Session、Memory、HITL、Desktop
+  IPC/Runtime Event contract、Tool Registry/handlers、Dataset/Chart、Node P0 或依赖。
+- **Phase 2.3 真实验收继续未完成。** 原 OpenAI endpoint/gpt-5.6-luna 文本与工具请求均
+  HTTP 429，无成功模型响应，真实适配/AgentLoop 解析与模型/服务兼容性仍未验证。
+  本轮未读真实 API Key、未加载 .env、未再次请求真实服务；原真实验收证据未改。
+  Phase 2.4 双模式离线验收完成后停止，不进入下一阶段。已安装旧版本未自动升级。
+
+## Phase 2.3 最小 OpenAI-compatible Provider（真实网络验收 HTTP 429，未通过）
+
+- 新增 `providers/openai_compatible.py::OpenAICompatibleProvider`，实现原同步
+  `complete(messages, tools)`。用标准库发送 Chat Completions POST，将 Runtime 的
+  dataset_context/schema 转成消息数据上下文，保留原系统/Skill 指令和 tools schema。
+  响应仅返回 final_answer、显式 needs_user_input 或单个 tool_call；不返回厂商 envelope、
+  usage、原始响应，不执行工具。Skill 的 JSON contract 内容继续由原 validator 校验。
+- ProviderConfig 只新增 `api_key_env` 引用字段；显式 openai-compatible 要求 model_name、
+  endpoint 和引用齐全。API base URL 追加 /chat/completions，完整 URL 不重复追加。
+  默认仍 deterministic，不读取凭据或发网络请求；未知 Provider、缺配置/密钥明确失败，
+  不 fallback。其他 openai/anthropic/gemini/local 仍未实现。
+- 凭据只从明确指定的进程环境变量读取，实例不缓存密钥，HTTP 仅放 Authorization header；
+  无真实密钥读写。HTTPS/loopback HTTP 校验、禁止重定向、响应上限 1 MiB、固定错误文案、
+  不保留底层异常链、决策中的完整凭据回显拒绝均已测试。支持 30 秒 socket timeout、
+  401/403、network、HTTP 和 invalid response，不重试、不流式。
+- 新增离线专项 27/27，合计 Provider 42/42。覆盖 factory、配置缺失、请求与 tools、
+  工具历史、数据上下文、三类决策、Skill JSON 与同实例复用、非法/截断/多调用响应、
+  timeout/auth/network、真实本地 HTTP roundtrip 和 redirect 拒绝、完整密钥回显，
+  及实际 Workflow→确定性 sales.csv 工具（1580）→Session/Trace 的安全边界。
+  原 deterministic 实现与 `tests/test_providers.py` 未改；配置测试仅更新新增字段和
+  openai-compatible 不再是预留项这两处断言，原评测标准/基线未改。
+- 最终离线回归：TypeScript build、Desktop 30/30、Electron E2E 全部 9 步、Node 13/13、
+  Python 303/303、P0 15/15、P1 20/20、Robustness 25/25、Day19 60/60、Regression Gate
+  11/11 全 PASS，security violations=0、contract failures=0。Electron smoke 原启动方式
+  多次在取消轮询超时；诊断捕捉到任务已 completed、无错误，独立 E2E 取消通过。
+  以 `--disable-background-timer-throttling` 启动原 smoke 后通过，已将该参数加入
+  `desktop/package.json` 的 smoke 测试启动命令；断言、超时、Mock 与产品代码未改。
+  最终完整 Desktop `npm test` 退出码 0（build + 30 tests + smoke + E2E）。一次 E2E
+  原生 700px resize 等待超时，原测试不改复验通过；保留环境时序波动记录。
+- staged private Python 已验证真实导入本阶段 Provider、Runtime、SSL 与默认模型，未回落到
+  源码目录；未重建 NSIS installer。未修改 AgentLoop、Workflow、Skill、Session、Memory、
+  HITL、Desktop IPC/Event contract、ToolRegistry/handlers、Dataset/Chart 或 Node P0。
+- 新增显式 `tests/provider_real_smoke.py`，仅准备合成文本和带 tools 两次请求，输出安全状态
+  报告；不会被离线回归运行。最终验收补充原 AgentLoop 决策解析校验及仅记录 HTTP status/
+  attempts 的探针，不改 Runtime/Provider 协议。用户已指定 OpenAI Chat Completions endpoint、
+  gpt-5.6-luna 和 OPENAI_API_KEY；2026-09-27 本机 Process/User/Machine 未设置该变量。
+  用户随后明确授权本次从 .env 临时加载指定密钥到进程环境，Provider 仍只读环境变量。
+  实际 HTTP attempts=2，文本与单工具 schema 请求均返回 429/provider_http_error，自动重试=0。
+  未获得 final_answer/tool_call，无法验证真实响应适配或 AgentLoop 解析；服务/模型兼容性
+  及具体限速/额度原因不能判定。密钥未输出或持久化，临时加载脚本已移除；
+  原架构/协议未改。安全证据见 tests/results/provider-real-smoke.json。
+  Phase 2.3 尚未最终验收完成；当时停止，后续 Phase 2.4 不替代这两次真实验收。
+
+## Phase 2.2 Provider 配置骨架
+
+- 新增 `providers/config.py`，提供不可变、内存中的 `ProviderConfig`，仅含
+  `provider_id="deterministic"`、可选 `model_name` 和 `endpoint`。配置无 API Key 字段，
+  不读取环境变量、配置文件或凭据；可选字段在 deterministic 中不影响执行。
+- `create_provider()` 根据 `provider_id` 选择实现，保留无参数、字符串和旧 `name=`
+  调用兼容。未知或预留 Provider 均抛出 `UnknownProviderError`，`to_dict()` 返回
+  `code="unsupported_provider"` 和固定错误文案，不回显配置值，不静默 fallback。
+  配置类型/字段错误返回 `invalid_provider_config`；冲突的旧新输入明确拒绝。
+- 仅预留 `openai`、`anthropic`、`gemini`、`openai-compatible` 和 `local` 名称，
+  未实现任何真实 Provider 或网络调用。Desktop `build_workflow()` 增加仅供内部组装的
+  `provider_config` 参数，在业务组装前创建模型；默认 Desktop worker 仍使用 deterministic。
+  配置不传入 Workflow state、Agent messages、ToolResult 或 Runtime Event。
+- 新增 Provider 配置测试 9/9，加 Phase 2.1 专项合计 15/15。覆盖默认/显式配置、正确实例、
+  结构化错误、预留项拒绝、旧调用兼容、无静默选择、配置不可变、Runtime 提前拒绝，及真实
+  sales.csv 分析默认/显式输出相同（1580）、Session/Trace 不含配置字段和值。
+- 本阶段全量回归：TypeScript build、Desktop 30/30、Electron smoke、Electron E2E 9 步、
+  Node 13/13、Python 276/276、P0 15/15、P1 20/20、Robustness 25/25、
+  Day19 60/60、Regression Gate 11/11 全 PASS；security violations=0、contract failures=0。
+  使用此前验证的正常桌面权限运行 Python 全量和 Electron；隔离工作目录中的 staged
+  private Python 实测导入配置/Runtime 并执行 Provider，未回落到源码目录。
+- 未修改 Renderer Settings、Agent Loop、Workflow、Skill、Session、Memory、HITL、Desktop
+  IPC、Runtime Event contract、Tool Registry/handlers、Dataset/Chart 事实源或 Node P0 流水线。
+  不重建 NSIS installer；Phase 2.2 完成后停止，未进入 Phase 2.3。
+
+## Phase 2.1 Provider 抽象落地
+
+- 新增 `providers/contracts.py`，以统一 `ModelProvider` Protocol 固化现有同步
+  `complete(messages, tools) -> dict` 边界，并补充消息、工具 schema 和模型决策类型；
+  Agent Loop 的调用方式和响应标准化语义未改。
+- 将 Desktop Runtime 内嵌的 `BridgeModel` 原样迁移为
+  `providers/deterministic.py::DeterministicModelProvider`。规则、工具选择、调用 ID、
+  输出结构和确定性行为保持一致，不包含网络、随机性、API Key 或真实 Provider 配置。
+- 新增最小 `create_provider()` composition helper；当前只接受 `deterministic`，未知名称
+  抛出 `UnknownProviderError`，不静默回退。Desktop `build_workflow()` 只在模型组装点改为
+  `AgentLoop(create_provider(), registry)`；sidecar staging 同步包含 `providers/`。
+- Provider 专项测试 6/6 通过，覆盖 factory/未知 Provider、final answer、needs user input、
+  tool call、tools schema、Skill 同一 Provider 实例复用和 Desktop 默认组装；staged private
+  Python 也实际导入并执行 `DeterministicModelProvider` 成功。
+- 全量回归：TypeScript build、Desktop 30/30、Electron smoke、Electron E2E 9 步、
+  Python 267/267、P0 15/15、P1 20/20、Robustness 25/25、Day19 60/60、
+  Regression Gate 11/11 全 PASS；security violations=0、contract failures=0。
+  首次沙箱内 Electron 启动因 Chromium GPU 子进程加载失败，改在正常桌面权限下完整复跑后
+  全部通过；实现和测试标准未因该环境问题放宽。
+- 未修改 `agent/loop.py`、`workflow/`、`skill_runtime/`、Session、Memory、HITL、Desktop IPC、
+  Runtime Event contract、Tool Registry/handlers、Dataset/Chart 事实源或 Node P0 流水线。
+  Phase 2.1 完成后停止，未接真实 API，也未进入 Phase 2.2。
 
 ## Phase 1.5 最终产品验收与 Phase 1 冻结
 

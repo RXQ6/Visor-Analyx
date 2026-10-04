@@ -26,7 +26,7 @@ async function main() {
       PYTHONHOME: join(resources, "python-runtime"),
       PYTHONPATH: resources,
       PYTHONNOUSERSITE: "1",
-      PATH: `${join(resources, "bin")};${process.env.PATH || ""}`,
+      PATH: `${join(resources, "bin")};${join(process.env.SystemRoot || "C:\\Windows", "System32")}`,
     },
   });
   const runtime = new RuntimeClient(manager);

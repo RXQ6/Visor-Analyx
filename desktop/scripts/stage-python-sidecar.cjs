@@ -1,4 +1,4 @@
-const { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } = require("node:fs");
+const { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, readFileSync, writeFileSync } = require("node:fs");
 const { basename, dirname, join, relative, resolve, sep } = require("node:path");
 const { spawnSync } = require("node:child_process");
 
@@ -22,13 +22,11 @@ if (probe.error || probe.status !== 0) {
   throw new Error("Set DATA_AGENT_PYTHON to a working Windows Python 3.12 with cryptography installed before packaging");
 }
 const pythonHome = resolve(probe.stdout.trim());
-const sitePackages = join(pythonHome, "Lib", "site-packages");
 for (const required of ["python.exe", "python312.dll", "Lib", "DLLs", "LICENSE.txt"]) {
   if (!existsSync(join(pythonHome, required))) throw new Error(`Python source is missing ${required}`);
 }
-if (!existsSync(join(sitePackages, "cryptography"))) {
-  throw new Error("The packaging Python must have cryptography installed");
-}
+const dependencyRoot = join(desktopRoot, ".packaging-deps");
+if (!existsSync(join(dependencyRoot, "mcp"))) throw new Error("Install desktop/requirements-packaged.txt into desktop/.packaging-deps before packaging");
 
 rmSync(stageRoot, { recursive: true, force: true });
 const embeddedPython = join(stageRoot, "python-runtime");
@@ -53,18 +51,13 @@ cpSync(sourceLib, join(embeddedPython, "Lib"), {
 });
 const stagedSite = join(embeddedPython, "Lib", "site-packages");
 mkdirSync(stagedSite, { recursive: true });
-for (const entry of readdirSync(sitePackages)) {
-  if (/^(cryptography|cffi|pycparser)(-|$)/.test(entry) || entry === "_cffi_backend.cp312-win_amd64.pyd") {
-    cpSync(join(sitePackages, entry), join(stagedSite, entry), {
-      recursive: true,
-      filter: (source) => basename(source) !== "__pycache__" && !source.endsWith(".pyc"),
-    });
-  }
-}
+const deps = spawnSync(sourcePython, ["-I", join(__dirname, "stage-packaging-deps.py"), dependencyRoot,
+  stagedSite, join(desktopRoot, "requirements-packaged.txt")], { encoding: "utf8", windowsHide: true });
+if (deps.error || deps.status !== 0) throw new Error(`Pinned Python dependency staging failed: ${deps.stderr}`);
 
 for (const name of [
   "agent", "charts", "context_compression", "datasets", "guardrails", "hitl",
-  "mcp_adapter", "memory", "observability", "session", "skill_runtime",
+  "mcp_adapter", "memory", "observability", "providers", "session", "skill_runtime",
   "subagents", "tools", "workflow",
 ]) {
   cpSync(join(projectRoot, name), join(stageRoot, name), {
@@ -75,6 +68,7 @@ for (const name of [
 cpSync(join(desktopRoot, "python", "runtime_bridge.py"), join(stageRoot, "desktop", "python", "runtime_bridge.py"), {
   recursive: true,
 });
+cpSync(join(desktopRoot, "python", "runtime_settings.py"), join(stageRoot, "desktop", "python", "runtime_settings.py"));
 cpSync(join(projectRoot, "src"), join(stageRoot, "src"), {
   recursive: true,
   filter: (source) => statSync(source).isDirectory() || source.endsWith(".js"),
@@ -84,5 +78,26 @@ if (!existsSync(nodeBinary)) throw new Error("Node executable for the data bridg
 cpSync(nodeBinary, join(stageRoot, "bin", "node.exe"));
 const nodeLicense = join(dirname(nodeBinary), "LICENSE");
 if (existsSync(nodeLicense)) cpSync(nodeLicense, join(stageRoot, "bin", "NODE_LICENSE.txt"));
+
+// Fixed upstream Server and its locked transitive dependencies. No npx/runtime install.
+const mcpRoot = join(projectRoot, "integrations", "mcp-filesystem");
+const lock = JSON.parse(readFileSync(join(mcpRoot, "package-lock.json"), "utf8"));
+for (const [path, specification] of Object.entries(lock.packages)) {
+  if (!path) continue;
+  const manifest = JSON.parse(readFileSync(join(mcpRoot, path, "package.json"), "utf8"));
+  if (manifest.version !== specification.version) throw new Error(`MCP lock mismatch: ${path}`);
+}
+for (const name of ["package.json", "package-lock.json", "node_modules"]) {
+  cpSync(join(mcpRoot, name), join(stageRoot, "integrations", "mcp-filesystem", name), {
+    recursive: true, filter: (source) => ![".bin", ".cache", ".env"].includes(basename(source)),
+  });
+}
+cpSync(join(projectRoot, "tests", "fixtures", "mcp-readonly"), join(stageRoot, "tests", "fixtures", "mcp-readonly"), { recursive: true });
+writeFileSync(join(stageRoot, "packaged-dependencies.json"), JSON.stringify({
+  python: "3.12", pythonPackages: JSON.parse(deps.stdout),
+  filesystemServer: "2026.8.31", npmLockVersion: lock.lockfileVersion,
+  npmPackages: Object.keys(lock.packages).filter(Boolean).length,
+  allowedRoot: "tests/fixtures/mcp-readonly", allowedTools: ["get_file_info"],
+}, null, 2) + "\n");
 
 console.log(`Staged private Python ${probe.stdout.trim()} and Node bridge in ${stageRoot}`);

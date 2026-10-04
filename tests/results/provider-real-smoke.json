@@ -1,0 +1,29 @@
+{
+  "verified_at": "2026-09-27T02:48:06.886463+00:00",
+  "endpoint": "https://api.openai.com/v1/chat/completions",
+  "model_name": "gpt-5.6-luna",
+  "requests": [
+    {
+      "request": "text",
+      "passed": false,
+      "error": {
+        "code": "provider_http_error",
+        "message": "model provider returned an unsuccessful HTTP status"
+      },
+      "http_attempted": true,
+      "http_status": 429
+    },
+    {
+      "request": "tools",
+      "passed": false,
+      "error": {
+        "code": "provider_http_error",
+        "message": "model provider returned an unsuccessful HTTP status"
+      },
+      "http_attempted": true,
+      "http_status": 429
+    }
+  ],
+  "http_attempts": 2,
+  "passed": false
+}

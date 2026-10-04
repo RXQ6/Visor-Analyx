@@ -26,6 +26,7 @@ from cryptography.fernet import Fernet  # noqa: E402
 from hitl import PersistentApprovalManager  # noqa: E402
 from mcp_adapter import MCPToolAdapter, MockMCPClient, MockMCPServer  # noqa: E402
 from observability import TraceCollector  # noqa: E402
+from providers import ProviderConfig, ProviderConfigError, create_provider, load_provider_config  # noqa: E402
 from session import (  # noqa: E402
     SQLiteApprovalRepository,
     SQLiteSessionStore,
@@ -36,6 +37,10 @@ from session.recovery import SessionStateProjector  # noqa: E402
 from skill_runtime import SkillRegistry, SkillRuntime  # noqa: E402
 from tools import build_default_registry  # noqa: E402
 from workflow import AnalysisNode, CalcNode, ChatNode, MemoryRecallNode, RuleRouter, Workflow  # noqa: E402
+from desktop.python.runtime_settings import (  # noqa: E402
+    WORKER_SETTINGS_ENV, SettingsError, decode_worker_settings, default_settings,
+    inspect_settings, mcp_connection, provider_config as settings_provider_config,
+)
 
 PROTOCOL_VERSION = 1
 MAX_LINE_BYTES = 1024 * 1024
@@ -43,6 +48,7 @@ ID_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}")
 COMMAND_TYPES = frozenset({
     "run.start", "run.cancel", "dataset.register",
     "session.list", "session.get", "session.resume", "approval.resolve",
+    "settings.get", "settings.apply",
 })
 TERMINAL_TYPES = frozenset({
     "run_completed", "run_failed", "run_cancelled", "approval_required", "approval_resolved",
@@ -73,7 +79,13 @@ def validate_command(value: Any) -> dict[str, Any]:
     payload = value.get("payload")
     if not _record(payload):
         raise ProtocolError("invalid_payload", "payload must be an object")
-    if message_type == "run.start":
+    if message_type == "settings.get":
+        if payload:
+            raise ProtocolError("settings_invalid", "配置读取不接受参数。")
+    elif message_type == "settings.apply":
+        if set(payload) != {"config", "restore"} or type(payload["restore"]) is not bool:
+            raise ProtocolError("settings_invalid", "配置请求无效。")
+    elif message_type == "run.start":
         message = payload.get("message")
         if not isinstance(message, str) or not message.strip() or len(message.strip()) > 4000:
             raise ProtocolError("invalid_run_input", "message must contain 1 to 4000 characters")
@@ -161,94 +173,6 @@ def envelope(
     }
 
 
-class BridgeModel:
-    """Minimal composition adapter used only when Workflow selects analysis."""
-
-    def complete(self, *, messages: list[dict[str, Any]], tools: list[dict[str, Any]]) -> dict[str, Any]:
-        available = {item.get("function", {}).get("name") for item in tools}
-        user_index = next(
-            (index for index in range(len(messages) - 1, -1, -1) if messages[index].get("role") == "user"),
-            -1,
-        )
-        user = messages[user_index] if user_index >= 0 else {}
-        question = str(user.get("content", ""))
-        dataset_context = user.get("dataset_context")
-        datasets = dataset_context.get("datasets", []) if isinstance(dataset_context, dict) else []
-        dataset = datasets[-1] if datasets else None
-        tool_message = next(
-            (item for item in reversed(messages[user_index + 1 :]) if item.get("role") == "tool"),
-            None,
-        )
-        wants_chart = any(term in question.lower() for term in ("图", "chart", "visual"))
-
-        if isinstance(tool_message, dict):
-            try:
-                observation = json.loads(str(tool_message.get("content", "{}")))
-            except json.JSONDecodeError:
-                return {"type": "final_answer", "content": "工具结果无法解析，分析未完成。"}
-            if not observation.get("ok"):
-                error = observation.get("error") or {}
-                return {
-                    "type": "final_answer",
-                    "content": f"分析工具失败：{error.get('message', error.get('code', 'unknown error'))}",
-                }
-            tool_name = str(tool_message.get("name", ""))
-            if wants_chart and tool_name != "generate_chart" and "generate_chart" in available:
-                chart_type = "line" if tool_name == "trend_analysis" else "scatter" if tool_name == "scatter_data" else "bar"
-                return {
-                    "type": "tool_call",
-                    "id": f"bridge_chart_{len(messages)}",
-                    "name": "generate_chart",
-                    "arguments": {
-                        "sourceCallId": str(tool_message.get("tool_call_id")),
-                        "chartType": chart_type,
-                    },
-                }
-            if tool_name == "generate_chart":
-                return {"type": "final_answer", "content": "分析完成，图表已生成。"}
-            data = observation.get("data")
-            summary = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-            return {"type": "final_answer", "content": "分析完成：" + summary}
-
-        if any(term in question.lower() for term in ("外部写", "mcp write", "external write")) and "mcp_mock__echo" in available:
-            return {
-                "type": "tool_call",
-                "id": f"bridge_write_{len(messages)}",
-                "name": "mcp_mock__echo",
-                "arguments": {"text": question},
-            }
-        if not isinstance(dataset, dict):
-            return {"type": "final_answer", "content": "Desktop Runtime 已完成本次请求。"}
-        dataset_id = dataset.get("datasetId")
-        columns = dataset.get("columns", [])
-        if not isinstance(dataset_id, str) or not isinstance(columns, list):
-            return {"type": "needs_user_input", "content": "数据集摘要不完整，请重新选择文件。"}
-        named = [item for item in columns if isinstance(item, dict) and isinstance(item.get("name"), str)]
-        number_columns = [item["name"] for item in named if item.get("type") == "number"]
-        date_columns = [item["name"] for item in named if item.get("type") == "date"]
-        text_columns = [item["name"] for item in named if item.get("type") == "text"]
-        metric = next((name for name in number_columns if name in question), number_columns[0] if number_columns else None)
-        group = next((name for name in text_columns if name in question), text_columns[0] if text_columns else None)
-        date_field = next((name for name in date_columns if name in question), date_columns[0] if date_columns else None)
-        operation = "average" if any(term in question for term in ("平均", "均值")) else "maximum" if "最大" in question else "minimum" if "最小" in question else "count" if any(term in question for term in ("计数", "数量")) else "sum"
-        call: dict[str, Any] | None = None
-        if metric and date_field and any(term in question for term in ("趋势", "变化", "按日期", "折线")):
-            call = {"name": "trend_analysis", "arguments": {"datasetId": dataset_id, "dateField": date_field, "metric": metric, "operation": operation}}
-        elif metric and group and any(term in question for term in ("按", "分组", "对比", "柱状")):
-            call = {"name": "group_compare", "arguments": {"datasetId": dataset_id, "groupBy": group, "metric": metric, "operation": operation}}
-        elif metric:
-            call = {"name": "basic_stats", "arguments": {"datasetId": dataset_id, "metric": metric, "operation": operation}}
-        elif "inspect_data" in available:
-            call = {"name": "inspect_data", "arguments": {"datasetId": dataset_id}}
-        if call is None or call["name"] not in available:
-            return {"type": "needs_user_input", "content": "请明确要分析的字段和统计方式。"}
-        return {
-            "type": "tool_call",
-            "id": f"bridge_analysis_{len(messages)}",
-            **call,
-        }
-
-
 def runtime_root() -> Path:
     return Path(
         os.environ.get(
@@ -314,16 +238,21 @@ def build_workflow(
     thread_id: str,
     store: SQLiteSessionStore,
     dataset: dict[str, str] | None = None,
+    *,
+    provider_config: ProviderConfig | None = None,
+    registry: Any = None,
 ) -> tuple[Workflow, ConversationRunner]:
+    model = create_provider(provider_config)
     datasets = DatasetRegistry(runtime_root() / thread_id / "datasets")
     if dataset is not None:
         summary = datasets.register(
             dataset["path"],
             dataset_id=dataset["dataset_id"],
         )
-    registry, _server = build_hitl_registry(store, thread_id)
+    if registry is None:
+        registry, _server = build_hitl_registry(store, thread_id)
     runner = ConversationRunner(
-        AgentLoop(BridgeModel(), registry),
+        AgentLoop(model, registry),
         dataset_registry=datasets,
         conversation_id=thread_id,
     )
@@ -496,8 +425,18 @@ def worker(command: dict[str, Any]) -> int:
     store = SQLiteSessionStore(session_database())
     ensure_session(store, thread_id)
     try:
-        with contextlib.redirect_stdout(sys.stderr):
-            workflow, runner = build_workflow(thread_id, store, command.get("_dataset"))
+        with contextlib.redirect_stdout(sys.stderr), contextlib.ExitStack() as resources:
+            encoded = os.environ.get(WORKER_SETTINGS_ENV)
+            settings = decode_worker_settings(encoded) if encoded is not None else None
+            selected_provider = settings_provider_config(settings) if settings is not None else load_provider_config()
+            selected_registry = None
+            if settings is not None and settings["mcp"]["enabled"]:
+                selected_registry, _server = build_hitl_registry(store, thread_id)
+                resources.enter_context(mcp_connection(selected_registry, True))
+            workflow, runner = build_workflow(
+                thread_id, store, command.get("_dataset"),
+                provider_config=selected_provider, registry=selected_registry,
+            )
             result = workflow.invoke(
                 {
                     "query": command["payload"]["message"],
@@ -558,9 +497,10 @@ def worker(command: dict[str, Any]) -> int:
         emitter.emit(
             "run_failed",
             {"status": "failed"},
+            error.to_dict() if isinstance(error, (ProviderConfigError, SettingsError)) else
             {"code": type(error).__name__, "message": "Python Runtime execution failed"},
         )
-        print(f"runtime worker failed: {type(error).__name__}: {error}", file=sys.stderr)
+        print(f"runtime worker failed: {type(error).__name__}", file=sys.stderr)
         return 1
     finally:
         store.close()
@@ -633,6 +573,7 @@ class Supervisor:
         self.runs: dict[str, RunProcess] = {}
         self.runs_lock = threading.Lock()
         self.dataset_registries: dict[str, DatasetRegistry] = {}
+        self.settings_snapshot: dict[str, Any] | None = None
 
     def serve(self) -> int:
         for raw in sys.stdin:
@@ -641,7 +582,9 @@ class Supervisor:
                 continue
             try:
                 command = validate_command(json.loads(raw))
-                if command["type"] == "run.start":
+                if command["type"] in {"settings.get", "settings.apply"}:
+                    self._settings(command)
+                elif command["type"] == "run.start":
                     self._start(command)
                 elif command["type"] == "run.cancel":
                     self._cancel(command)
@@ -670,7 +613,31 @@ class Supervisor:
         self.shutdown()
         return 0
 
+    def _settings(self, command: dict[str, Any]) -> None:
+        try:
+            if command["type"] == "settings.apply":
+                with self.runs_lock:
+                    if any(not state.terminal and not state.cancelled for state in self.runs.values()):
+                        raise SettingsError("settings_busy", "请等待当前分析结束后再应用配置。")
+                snapshot = inspect_settings(command["payload"]["config"])
+                if not snapshot["ready"] and not command["payload"]["restore"]:
+                    raise SettingsError(**snapshot["issue"])
+                self.settings_snapshot = snapshot
+            else:
+                config = self.settings_snapshot["config"] if self.settings_snapshot is not None else default_settings()
+                snapshot = inspect_settings(config)
+                if self.settings_snapshot is not None:
+                    self.settings_snapshot = snapshot
+            self.writer.write(envelope("response", request_id=command["request_id"], run_id=None,
+                thread_id=None, trace_id=None, sequence=0, payload={"settings": snapshot}))
+        except SettingsError as error:
+            self._protocol_failure(command["request_id"], error.code, str(error))
+
     def _start(self, command: dict[str, Any]) -> None:
+        if self.settings_snapshot is not None and not self.settings_snapshot["ready"]:
+            issue = self.settings_snapshot["issue"]
+            self._protocol_failure(command["request_id"], issue["code"], issue["message"])
+            return
         run_id = f"run_{uuid.uuid4().hex}"
         thread_id = command.get("thread_id") or f"thread_{uuid.uuid4().hex}"
         worker_command = dict(command)
@@ -699,6 +666,10 @@ class Supervisor:
 
     def _spawn_worker(self, worker_command: dict[str, Any], mode: str) -> None:
         run_id = worker_command["run_id"]
+        environment = {**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1"}
+        environment.pop(WORKER_SETTINGS_ENV, None)
+        if self.settings_snapshot is not None:
+            environment[WORKER_SETTINGS_ENV] = json.dumps(self.settings_snapshot["config"])
         process = subprocess.Popen(
             [sys.executable, str(Path(__file__).resolve()), mode],
             cwd=str(REPO_ROOT),
@@ -708,7 +679,7 @@ class Supervisor:
             text=True,
             encoding="utf-8",
             bufsize=1,
-            env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONUTF8": "1"},
+            env=environment,
         )
         state = RunProcess(process, worker_command)
         with self.runs_lock:

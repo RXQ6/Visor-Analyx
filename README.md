@@ -7,14 +7,33 @@ Guardrail 和 HITL 仍是业务事实源。
 
 ## 下载 Windows 桌面版
 
-**[直接下载 Phase 1.4 安装包（Windows .exe）](https://github.com/RXQ6/Visor-Analyx/releases/download/desktop-phase1.4/Data.Analysis.Agent.Setup.0.1.0.exe)** ·
-[查看发布说明](https://github.com/RXQ6/Visor-Analyx/releases/tag/desktop-phase1.4)
+**[下载新版证据工作台（Windows .exe，预发布）](https://github.com/RXQ6/Visor-Analyx/releases/download/desktop-evidence-workbench-20261004/Data.Analysis.Agent.Setup.0.1.0.exe)** ·
+[查看新版发布说明](https://github.com/RXQ6/Visor-Analyx/releases/tag/desktop-evidence-workbench-20261004)
+
+[历史 Phase 1.4 安装包](https://github.com/RXQ6/Visor-Analyx/releases/tag/desktop-phase1.4)
 
 安装包放在 GitHub Releases 的 **Assets** 中，不在 `main` 或 `develop` 的文件列表里。
-Phase 1.4 源码位于 [`develop`](https://github.com/RXQ6/Visor-Analyx/tree/develop)。
-当前安装包未做代码签名；新 NSIS 包尚未单独做安装验收。
+当前源码位于 [`develop`](https://github.com/RXQ6/Visor-Analyx/tree/develop)，新旧安装包均未做代码签名。
+新版已完成真实 NSIS 安装及 dev / packaged / installed 验证；详情见
+[证据工作台 UI](docs/Desktop-Evidence-Workbench.md)。历史首次窗口消失根因与真实 OpenAI
+HTTP 429 验收缺口保留，Phase 2.9 尚不能标记为最终完全通过，因此新版以预发布提供。
+历史打包记录见 [Phase 2.9 打包验收](docs/Desktop-Packaged-Provider-MCP-Acceptance.md)。
 
 ## 桌面界面预览
+
+**当前证据工作台：**左侧展示真实文件概览与字段，中间呈现回答和图表，右侧查看分析
+过程与当前数据依据。空态增加流程引导和示例卡片；窄屏保留可用的提问输入框。
+以下来自当前 Renderer 的真实 Electron 截图，使用仓库内 `tests/fixtures/sales.csv`；
+没有复制设计稿中的示例数值或在前端计算分析结果。
+
+![证据工作台空首页](docs/images/desktop/evidence-workbench-empty.png)
+
+![证据工作台真实分析结果](docs/images/desktop/evidence-workbench-analysis.png)
+
+实现范围、独立本地安装产物及验收方式见 [证据工作台 UI](docs/Desktop-Evidence-Workbench.md)。
+本次用户授权只调整 Renderer，不改变核心分析逻辑，也不改变历史 Phase 2.9 / 2.3 验收状态。
+
+### 历史界面
 
 以下图片来自 Phase 1.4 的真实 Electron E2E 截图；分析结果使用仓库内
 `tests/fixtures/sales.csv` 测试数据。界面图形是可替换的工作占位，尚非最终品牌资产。
@@ -27,9 +46,14 @@ Phase 1.4 源码位于 [`develop`](https://github.com/RXQ6/Visor-Analyx/tree/dev
 
 ![Phase 1.4 桌面端分析结果](docs/images/desktop/analysis-result.png)
 
-**设置与集成：**AI Providers、MCP 和外部服务仅展示“规划中”入口，不接收 API Key，也不建立真实连接。
+**设置与集成（Phase 1.4 历史截图）：**当时仅展示“规划中”入口。Phase 2.8 已支持
+deterministic / OpenAI-compatible 配置与固定只读 Filesystem MCP 开关；其他集成仍在规划中。
+页面只接收 API Key 环境变量名，不接收真实密钥，保存时不发送模型请求。
+当前流程与安全边界见 [Desktop Provider/MCP 设置说明](docs/Desktop-Provider-MCP-Settings.md)。
 
 ![Phase 1.4 桌面端设置与集成](docs/images/desktop/settings-integrations.png)
+
+![Phase 2.8 真实 Electron 运行模式配置](docs/images/desktop/settings-runtime-phase28.png)
 
 当前应用标记见 [mark.svg](desktop/assets/brand/mark.svg)，Windows 图标见
 [icon.ico](desktop/assets/brand/icon.ico)；两者共用可替换的品牌资产入口。
@@ -75,7 +99,7 @@ Runtime，不需要另开浏览器或单独启动前端服务器。
 
 ## Windows 打包、安装与实际验收
 
-打包机需要 **Windows Python 3.12**，并在该解释器中安装 `cryptography`。
+打包机需要 **Windows x64 Python 3.12**，以及项目私有目录中的固定 Python/MCP 依赖。
 构建脚本会校验 Python 版本相关文件，并把私有 Python、受控项目模块、JSONL Bridge
 和 Node 数据桥接打入应用资源；成品运行时不依赖开发机绝对路径，也无需设置
 `DATA_AGENT_PYTHON`。
@@ -84,6 +108,8 @@ Runtime，不需要另开浏览器或单独启动前端服务器。
 cd .\desktop
 npm.cmd ci
 $env:DATA_AGENT_PYTHON = "C:\path\to\python.exe"
+& $env:DATA_AGENT_PYTHON -I -m pip install --only-binary=:all: --target .packaging-deps -r requirements-packaged.txt
+npm.cmd ci --prefix ..\integrations\mcp-filesystem
 npm.cmd run pack:win
 ```
 
@@ -136,6 +162,8 @@ npm.cmd test
 npm.cmd run test:e2e:packaged
 npm.cmd run test:smoke:packaged
 npm.cmd run verify:packaged-sidecar
+npm.cmd run verify:packaged-integrations
+node scripts/audit-packaged-resources.cjs
 ```
 
 先运行 `pack:win`，再运行依赖默认 `release/win-unpacked` 的 packaged E2E、
@@ -162,6 +190,16 @@ ConversationRunner 和 Agent Loop。
 `ToolDefinition`，因此本地工具和 MCP 工具共用参数校验、`ToolResult`、结果截断和 trace；
 默认测试保留内存模拟 MCP Server，Day18.1 另以官方 MCP Python SDK 验证真实 stdio
 Client/Server，并把 Adapter timeout 传播为底层 pending request cancellation。
+Phase 2.6 增加可选的真实官方 Filesystem Server（固定版本 2026.8.31），通过同一
+Client → Adapter → Registry → AgentLoop 只开放公开测试目录的文件元数据查询；
+原 EvalRunner 可独立验收该链路，默认 Desktop/Registry 和 Settings 不自动启用。
+安装与安全边界见 [真实只读 MCP 接入说明](docs/MCP-Readonly-Filesystem.md)。
+Phase 2.7 提供显式 Provider/MCP Runtime 组装与独立 Harness 验收入口：先用 scripted
+Provider，再用原 OpenAI-compatible adapter 连接本机可控 HTTP 服务，与同一个真实
+Filesystem MCP 完成 tool_call → Observation → 第二轮 final_answer；不读取真实密钥，
+不访问 OpenAI、不扩大白名单。运行方式见
+[Provider 与 MCP 联调说明](docs/Provider-MCP-Joint-Validation.md)。本机验证不能替代
+Phase 2.3 的真实 OpenAI 验收；此前 HTTP 429 风险仍保留。
 Day16 在 analysis route 内增加可选的项目级 SkillRuntime：Router 先完成粗粒度分流，
 SkillRegistry 只使用轻量目录发现 `data-diagnosis`，命中后才加载完整 `SKILL.md`，并通过
 受限 ToolRegistry 视图复用现有 Agent Loop，最后校验结构化诊断输出并记录 SkillInvocation。

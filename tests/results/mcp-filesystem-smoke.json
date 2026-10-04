@@ -1,0 +1,125 @@
+{
+  "server": "@modelcontextprotocol/server-filesystem",
+  "package_version": "2026.8.31",
+  "transport": "official_mcp_sdk_stdio",
+  "allowed_root": "tests/fixtures/mcp-readonly",
+  "startup": "PASS",
+  "list_tools": "PASS",
+  "schema_mapping": "PASS",
+  "registered_tools": [
+    "mcp_filesystem__get_file_info"
+  ],
+  "call_tool": "PASS",
+  "tool_result": "PASS",
+  "agent_loop": "PASS",
+  "guardrail_and_mcp_trace": "PASS",
+  "metadata_size_bytes": 78,
+  "metadata_matches_local_stat": true,
+  "file_content_read": false,
+  "external_model_requests": 0,
+  "eval_harness": {
+    "case_id": "MCP-FILESYSTEM-01",
+    "category": "real_mcp",
+    "passed": true,
+    "failure_reason": null,
+    "latency": 1.961524,
+    "answer": "文件元数据查询完成。",
+    "trace_summary": {
+      "available": true,
+      "tool_calls": [
+        {
+          "tool": "mcp_filesystem__get_file_info",
+          "status": "ok"
+        }
+      ]
+    },
+    "route_correct": null,
+    "tool_correct": true,
+    "contract_valid": true,
+    "trace_available": true,
+    "tool_calls": 1,
+    "loop_iterations": 2,
+    "retry_count": 0,
+    "failure_type": null,
+    "process_evaluations": [
+      {
+        "evaluator": "tool",
+        "available": true,
+        "passed": true,
+        "failure_type": null,
+        "failure_reason": null,
+        "values": {
+          "tool_correct": true,
+          "expected": [
+            "mcp_filesystem__get_file_info"
+          ],
+          "actual": [
+            "mcp_filesystem__get_file_info"
+          ],
+          "repeated": []
+        }
+      },
+      {
+        "evaluator": "contract",
+        "available": true,
+        "passed": true,
+        "failure_type": null,
+        "failure_reason": null,
+        "values": {
+          "contract_valid": true,
+          "kind": "tool_result"
+        }
+      },
+      {
+        "evaluator": "trace",
+        "available": true,
+        "passed": true,
+        "failure_type": null,
+        "failure_reason": null,
+        "values": {
+          "trace_available": true,
+          "tool_calls": 1,
+          "loop_iterations": 2,
+          "retry_count": 0,
+          "max_iter": 6,
+          "stop_reason": "final_answer"
+        }
+      },
+      {
+        "evaluator": "guardrail",
+        "available": true,
+        "passed": true,
+        "failure_type": null,
+        "failure_reason": null,
+        "values": {
+          "guardrail_decision": "allow",
+          "guardrail_tool": "mcp_filesystem__get_file_info",
+          "guardrail_event_count": 1
+        }
+      },
+      {
+        "evaluator": "observability",
+        "available": true,
+        "passed": true,
+        "failure_type": null,
+        "failure_reason": null,
+        "values": {
+          "observability_available": true,
+          "trace_event_count": 6,
+          "event_types": [
+            "guardrail_decision",
+            "mcp_called",
+            "request_completed",
+            "request_started",
+            "tool_called",
+            "tool_completed"
+          ]
+        }
+      }
+    ],
+    "suite": "phase26-real-mcp",
+    "metadata": {
+      "failures": []
+    }
+  }
+}

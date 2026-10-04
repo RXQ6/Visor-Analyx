@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import { RuntimeClient, RuntimeRequestError } from "../../bridge/runtimeClient";
 import { RuntimeStartupError } from "../../bridge/processManager";
 import type { DatasetSelectionResult, DatasetSummary, IpcError, IpcResult, RunCancelResult, RunStartResult, SessionListResult, SessionSnapshot } from "../../shared/ipc";
@@ -7,9 +7,12 @@ import { validateFilesSelectInput } from "./files-select";
 import { validateRunsCancelInput } from "./runs-cancel";
 import { validateRunsStartInput } from "./runs-start";
 import { validateApprovalInput, validateSessionInput } from "./session-approval";
+import { SETTINGS_CHANNELS, SettingsFault, type SettingsSnapshot } from "../../shared/settings";
+import { SettingsController } from "../settings-controller";
+import { SettingsStore } from "../settings-store";
 
 function failure(error: unknown): IpcResult<never> {
-  const known = error instanceof RuntimeRequestError || error instanceof RuntimeStartupError;
+  const known = error instanceof RuntimeRequestError || error instanceof RuntimeStartupError || error instanceof SettingsFault;
   const ipcError: IpcError = {
     code: known ? error.code : "RUNTIME_UNAVAILABLE",
     message: known ? error.message : "The Python Runtime is unavailable.",
@@ -19,6 +22,14 @@ function failure(error: unknown): IpcResult<never> {
 }
 
 export function registerIpcHandlers(runtime: RuntimeClient): void {
+  const settings = new SettingsController(runtime, new SettingsStore(app.getPath("userData")));
+  ipcMain.handle(SETTINGS_CHANNELS.get, async (_event, ...args): Promise<IpcResult<SettingsSnapshot>> => {
+    if (args.length) return { ok: false, error: { code: "settings_invalid", message: "配置读取不接受参数。" } };
+    try { return { ok: true, data: await settings.get() }; } catch (error) { return failure(error); }
+  });
+  ipcMain.handle(SETTINGS_CHANNELS.apply, async (_event, input: unknown): Promise<IpcResult<SettingsSnapshot>> => {
+    try { return { ok: true, data: await settings.apply(input) }; } catch (error) { return failure(error); }
+  });
   ipcMain.handle(IPC_CHANNELS.sessionsList, async (): Promise<IpcResult<SessionListResult>> => {
     try {
       return { ok: true, data: { sessions: await runtime.listSessions() } };
@@ -58,6 +69,7 @@ export function registerIpcHandlers(runtime: RuntimeClient): void {
       if (!validation.ok) {
         return { ok: false, error: { code: "INVALID_RUN_INPUT", message: validation.message, action: "Check the message and try again." } };
       }
+      await settings.ensureReady();
       const data = await runtime.startRun(
         validation.value.message,
         validation.value.threadId,

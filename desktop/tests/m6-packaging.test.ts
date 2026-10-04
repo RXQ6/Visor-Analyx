@@ -32,7 +32,7 @@ test("M6.2 packages Python, project modules, Node bridge and private executables
   assert.equal(config.build.extraResources[0].from, ".sidecar-stage");
   assert.match(config.scripts["pack:win"], /build:sidecar/);
   const staging = readFileSync(join(desktopRoot, "scripts", "stage-python-sidecar.cjs"), "utf8");
-  for (const name of ["runtime_bridge.py", "cryptography", "node.exe", "src", "python-runtime"]) {
+  for (const name of ["runtime_bridge.py", "cryptography", "node.exe", "providers", "src", "python-runtime"]) {
     assert.ok(staging.includes(name), name);
   }
   assert.equal(staging.includes("C:\\Users\\29486"), false);

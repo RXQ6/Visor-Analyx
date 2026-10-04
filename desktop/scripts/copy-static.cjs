@@ -19,7 +19,7 @@ cpSync(
   { recursive: true },
 );
 
-const modules = ["presentation", "chart-renderer", "run-state", "trace-panel", "product-state", "index"];
+const modules = ["presentation", "chart-renderer", "run-state", "trace-panel", "product-state", "settings", "index"];
 const factories = modules.map((name) => {
   const source = readFileSync(join(rendererOutput, `${name}.js`), "utf8");
   return `define("./${name}", function (require, module, exports) {\n${source}\n});`;

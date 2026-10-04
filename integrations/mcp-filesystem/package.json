@@ -1,0 +1,9 @@
+{
+  "name": "data-agent-readonly-filesystem-mcp",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Optional, pinned official Filesystem MCP server for scoped read-only acceptance",
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "2026.8.31"
+  }
+}

@@ -85,6 +85,7 @@ async function run(): Promise<void> {
     environment: {
       DATA_AGENT_RUNTIME_DIR: join(electronData, "runtime"),
       DESKTOP_BRIDGE_WORKER_DELAY_MS: "650",
+      PHASE28_E2E_KEY: "synthetic-phase28-e2e-not-a-real-key",
       ...(packagedAssets ? {
         PYTHONHOME: paths.pythonHome,
         PYTHONPATH: paths.repoRoot,
@@ -265,18 +266,19 @@ async function run(): Promise<void> {
         await waitFor(activeWindow, "right resize", `document.querySelector("#trace-panel").getBoundingClientRect().width > ${right.width + 20}`);
         await click(activeWindow, "#trace-panel > summary");
         await click(activeWindow, "#settings-open");
+        await waitFor(activeWindow, "Settings defaults", `document.querySelector("#settings-current-mode").dataset.ready === "true"`);
         const settings = await activeWindow.webContents.executeJavaScript(`({
           shown: !document.querySelector("#settings-view").hidden,
           workspaceHidden: document.querySelector("#analysis-scroll").hidden,
           composerHidden: document.querySelector("#composer").hidden,
-          providers: document.querySelectorAll(".provider-grid > div").length,
+          providers: document.querySelector("#settings-provider").options.length,
           planned: [...document.querySelectorAll(".settings-section .planned-badge")].every((badge) => badge.textContent === "规划中"),
-          noKeyInput: !document.querySelector("#settings-view input"),
+          noKeyInput: !document.querySelector("#settings-view input[type=password]") && Boolean(document.querySelector("#settings-key-env")),
           traceHidden: getComputedStyle(document.querySelector("#trace-panel")).display === "none",
           settingsRendered: getComputedStyle(document.querySelector("#settings-view")).display !== "none",
           workspaceVisualHidden: getComputedStyle(document.querySelector("#analysis-scroll")).display === "none",
         })`);
-        assert.deepEqual(settings, { shown: true, workspaceHidden: true, composerHidden: true, providers: 5, planned: true, noKeyInput: true, traceHidden: true, settingsRendered: true, workspaceVisualHidden: true });
+        assert.deepEqual(settings, { shown: true, workspaceHidden: true, composerHidden: true, providers: 2, planned: true, noKeyInput: true, traceHidden: true, settingsRendered: true, workspaceVisualHidden: true });
         if (process.env.DATA_AGENT_CAPTURE_UI === "1") {
           await new Promise((resolveDelay) => setTimeout(resolveDelay, 120));
           const path = join(electronData, "phase14-settings.png");
@@ -420,6 +422,59 @@ async function run(): Promise<void> {
       assert.ok(events.some((event) => event.type === "approval_resolved" && event.payload.status === "approved" && event.payload.executed === true));
       const trace = await activeWindow.webContents.executeJavaScript(`document.querySelector("#event-list").textContent`);
       assert.match(trace, /确认已处理/);
+    });
+
+    await step("8 Settings Provider/MCP configuration, safe credentials and restart", async () => {
+      await click(activeWindow, "#settings-open");
+      await waitFor(activeWindow, "Settings loaded", `document.querySelector("#settings-feedback").textContent === "已读取当前配置。"`);
+      await activeWindow.webContents.executeJavaScript(`(() => {
+        const select = document.querySelector("#settings-provider"); select.value = "openai-compatible"; select.dispatchEvent(new Event("change"));
+      })()`);
+      await click(activeWindow, "#settings-save");
+      await waitFor(activeWindow, "missing Settings fields", `!document.querySelector("#settings-error").hidden && document.querySelector("#settings-error").dataset.code === "settings_missing_fields"`);
+      await activeWindow.webContents.executeJavaScript(`(() => {
+        document.querySelector("#settings-model").value = "phase28-e2e";
+        document.querySelector("#settings-endpoint").value = "https://phase28.invalid/v1";
+        document.querySelector("#settings-key-env").value = "PHASE28_E2E_ABSENT";
+      })()`);
+      await click(activeWindow, "#settings-save");
+      await waitFor(activeWindow, "missing Settings credentials", `!document.querySelector("#settings-error").hidden && document.querySelector("#settings-error").dataset.code === "settings_missing_credentials"`);
+      await activeWindow.webContents.executeJavaScript(`(() => {
+        document.querySelector("#settings-key-env").value = "PHASE28_E2E_KEY";
+        document.querySelector("#settings-mcp-enabled").checked = true;
+      })()`);
+      await click(activeWindow, "#settings-save");
+      await waitFor(activeWindow, "external Provider and readonly MCP saved", `document.querySelector("#settings-feedback").textContent === "已保存，用于后续新分析。" && document.querySelector("#settings-mcp-status").textContent === "已启用 · 只读"`);
+      const safe = await activeWindow.webContents.executeJavaScript(`(async () => {
+        const saved = await window.desktopSettings.getSettings();
+        const forbidden = await window.desktopSettings.applySettings({ ...saved.data.config, mcp: { enabled: true, root: "D:/" } });
+        return { snapshot: saved, rejected: !forbidden.ok, keys: Object.keys(window.desktopSettings).sort(),
+          noNode: typeof window.require === "undefined" && typeof window.process === "undefined",
+          leaked: JSON.stringify(saved).includes("synthetic-phase28-e2e-not-a-real-key") };
+      })()`);
+      assert.equal(safe.snapshot.data.config.provider.provider_id, "openai-compatible");
+      assert.equal(safe.snapshot.data.credentials, "available");
+      assert.deepEqual(safe.snapshot.data.mcp.registered_tools, ["mcp_filesystem__get_file_info"]);
+      assert.equal(safe.rejected, true); assert.equal(safe.noNode, true); assert.equal(safe.leaked, false);
+      assert.deepEqual(safe.keys, ["applySettings", "getSettings"]);
+      await new Promise<void>((stopped) => { manager.once("exit", () => stopped()); manager.stop(); });
+      const restored = await activeWindow.webContents.executeJavaScript(`window.desktopSettings.getSettings()`);
+      assert.equal(restored.ok, true);
+      assert.equal(restored.data.config.provider.provider_id, "openai-compatible");
+      assert.equal(restored.data.mcp.enabled, true);
+      if (process.env.DATA_AGENT_CAPTURE_UI === "1") {
+        const path = join(electronData, "phase28-settings.png");
+        writeFileSync(path, (await activeWindow.webContents.capturePage()).toPNG());
+        console.log(`Phase 2.8 Settings screenshot: ${path}`);
+      }
+      await activeWindow.webContents.executeJavaScript(`(() => {
+        const select = document.querySelector("#settings-provider"); select.value = "deterministic"; select.dispatchEvent(new Event("change"));
+        document.querySelector("#settings-mcp-enabled").checked = false;
+      })()`);
+      await click(activeWindow, "#settings-save");
+      await waitFor(activeWindow, "local mode restored", `document.querySelector("#settings-mcp-status").textContent === "已停用" && document.querySelector("#settings-current-mode").textContent.includes("deterministic")`);
+      assert.equal(events.some((event) => JSON.stringify(event).includes("PHASE28_E2E_KEY")), false);
+      await click(activeWindow, "#workspace-open");
     });
   } catch (error) {
     let ui = "unavailable";

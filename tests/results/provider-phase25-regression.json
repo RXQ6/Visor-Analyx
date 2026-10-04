@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-27",
+  "phase": "2.5",
+  "status": "provider_reliability_and_internal_observations_verified_offline",
+  "error_categories": [
+    "auth_error", "rate_limited", "timeout", "network_error",
+    "invalid_response", "provider_unavailable"
+  ],
+  "error_envelope_fields_unchanged": ["code", "message"],
+  "dedicated_new_codes": ["provider_rate_limited", "provider_unavailable"],
+  "automatic_retries": 0,
+  "timeout": {
+    "config_field": "timeout_seconds",
+    "environment_field": "DATA_AGENT_PROVIDER_TIMEOUT_SECONDS",
+    "default_seconds": 30,
+    "maximum_seconds": 120,
+    "invalid_values_fail": true,
+    "hard_total_deadline": false
+  },
+  "metadata": {
+    "fields": [
+      "provider_id", "model_name", "latency_ms", "input_tokens", "output_tokens",
+      "request_id", "error_category", "error_code"
+    ],
+    "storage": "provider_instance_bounded_internal_memory_only",
+    "default_capacity": 64,
+    "maximum_capacity": 256,
+    "usage_estimated": false,
+    "request_id_source": "safe_x_request_id_header_or_explicit_body_request_id",
+    "completion_id_used_as_request_id": false,
+    "sink_failure_overrides_model_result": false,
+    "persisted_or_exported": false
+  },
+  "provider_tests": {"passed": 79, "total": 79, "new_reliability_tests": 22},
+  "existing_test_assertion_changes": "extend ProviderConfig field set and environment read set for optional timeout only",
+  "typescript_build": "PASS",
+  "desktop_tests": {"passed": 30, "total": 30},
+  "electron_smoke": "PASS",
+  "electron_e2e": {"status": "PASS", "steps": 9},
+  "desktop_npm_test_exit_zero": true,
+  "node_tests": {"passed": 13, "total": 13},
+  "python_regression": {"passed": 340, "total": 340},
+  "p0": {"passed": 15, "total": 15},
+  "p1": {"passed": 20, "total": 20},
+  "robustness": {"passed": 25, "total": 25},
+  "day19": {"passed": 60, "total": 60},
+  "regression_gate": {"passed": 11, "total": 11},
+  "security_violations": 0,
+  "contract_failures": 0,
+  "staged_reliability_observations_runtime_ssl_imports": "PASS",
+  "safety": {
+    "deterministic_implementation_modified": false,
+    "credentials_in_tests": "synthetic_only",
+    "real_credential_env_lookup": false,
+    "env_file_loaded": false,
+    "external_model_requests": 0,
+    "session_trace_log_event_metadata_exclusion": "PASS",
+    "api_key_authorization_prompt_response_endpoint_reference_exclusion": "PASS",
+    "agentloop_workflow_skill_ipc_event_contract_modified": false,
+    "evaluation_thresholds_modified": false
+  },
+  "phase23_real_acceptance": {
+    "complete": false,
+    "previous_text_http_status": 429,
+    "previous_tools_http_status": 429,
+    "real_final_answer_tool_call_agentloop_parsing": "unverified",
+    "model_service_compatibility": "unverified",
+    "new_real_requests_this_phase": 0,
+    "original_evidence_preserved": "provider-real-smoke.json"
+  },
+  "installer_rebuilt": false,
+  "next_phase_started": false
+}

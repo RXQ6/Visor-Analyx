@@ -1,0 +1,999 @@
+{
+  "date": "2026-10-02",
+  "phase": "2.9.1",
+  "status": "investigation_and_normal_launch_revalidation_completed_historical_root_cause_unconfirmed",
+  "root_cause": {
+    "historical_first_disappearance_confirmed": false,
+    "normal_launch_product_disappearance_reproduced": false,
+    "observations": [
+      "computer-use modal element cache unavailable and mismatched foreground screenshot",
+      "minimize without close/destroy/render-process-gone in initial diagnosis",
+      "windowsHide=true diagnostic attempt failed visibility; normal visible launch passed",
+      "initial diagnostic runner killed process after wrong fixed-fixture assertion; native failures now retain process",
+      "user confirmed participating in native chooser; final choices and Runtime verified"
+    ]
+  },
+  "production_fix_applied": false,
+  "changed_implementation_files": [
+    "desktop/scripts/verify-window-lifecycle.cjs",
+    "desktop/tests/window-lifecycle-probe.cjs"
+  ],
+  "documentation": [
+    "docs/Desktop-Window-Lifecycle-Investigation.md",
+    "CURRENT_TASK.md",
+    "processed.md"
+  ],
+  "native_chooser": {
+    "status": "PASS",
+    "checks_passed": 27,
+    "checks_total": 27,
+    "operator": "user performed native choice; probe recorded subsequent real chain",
+    "coverage": "first chooser native with fixture defaultPath; later cancel/error/retry/reload chooser responses supplied by test",
+    "results": [
+      {
+        "mode": "dev",
+        "nativeChooser": true,
+        "pid": 62812,
+        "executable": "D:\\DAnalyis\\desktop\\node_modules\\electron\\dist\\electron.exe",
+        "packaged": false,
+        "rendererUrl": "file:///D:/DAnalyis/desktop/dist/src/renderer/index.html",
+        "userData": "D:\\DAnalyis\\desktop\\release\\phase291-dev-native-yPfBbP\\profile",
+        "windowId": 1,
+        "webContentsId": 1,
+        "events": [
+          {
+            "event": "show",
+            "time": 1790950619892
+          },
+          {
+            "event": "focus",
+            "time": 1790950619917
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": true
+            },
+            "time": 1790950619923
+          },
+          {
+            "event": "blur",
+            "time": 1790950620625
+          },
+          {
+            "event": "focus",
+            "time": 1790950623418
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950623764
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950623980
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950623988
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950625153
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": true,
+              "files": 0
+            },
+            "time": 1790950625155
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950625194
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950625197
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950625393
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950625399
+          },
+          {
+            "event": "did-start-loading",
+            "time": 1790950625855
+          },
+          {
+            "event": "blur",
+            "time": 1790950625984
+          },
+          {
+            "event": "did-finish-load",
+            "time": 1790950626038
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950626051
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950626057
+          }
+        ],
+        "checks": [
+          "CSV success and parent binding",
+          "Fixed sales fixture before numeric analysis",
+          "Real analysis and event listener after CSV",
+          "Chooser cancel",
+          "CSV registration failure",
+          "Retry after registration failure",
+          "Explicit renderer reload preserves window",
+          "CSV after renderer reload",
+          "IPC and event listener after reload"
+        ],
+        "status": "passed",
+        "note": "First CSV chooser native; remaining chooser answers supplied by test; all registrations and analyses real."
+      },
+      {
+        "mode": "packaged",
+        "nativeChooser": true,
+        "pid": 52308,
+        "executable": "D:\\DAnalyis\\desktop\\release\\win-unpacked\\Data Analysis Agent.exe",
+        "packaged": true,
+        "rendererUrl": "file:///D:/DAnalyis/desktop/release/win-unpacked/resources/app.asar/dist/src/renderer/index.html",
+        "userData": "D:\\DAnalyis\\desktop\\release\\phase291-packaged-native-Thz0Lb\\profile",
+        "windowId": 1,
+        "webContentsId": 1,
+        "events": [
+          {
+            "event": "show",
+            "time": 1790950539683
+          },
+          {
+            "event": "focus",
+            "time": 1790950539703
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": true
+            },
+            "time": 1790950539710
+          },
+          {
+            "event": "blur",
+            "time": 1790950540005
+          },
+          {
+            "event": "focus",
+            "time": 1790950613333
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950613866
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950614332
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950614334
+          },
+          {
+            "event": "blur",
+            "time": 1790950614694
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950615631
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": true,
+              "files": 0
+            },
+            "time": 1790950615639
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950615668
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950615676
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950615870
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950615876
+          },
+          {
+            "event": "did-start-loading",
+            "time": 1790950616057
+          },
+          {
+            "event": "did-finish-load",
+            "time": 1790950616086
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950616095
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950616100
+          }
+        ],
+        "checks": [
+          "CSV success and parent binding",
+          "Fixed sales fixture before numeric analysis",
+          "Real analysis and event listener after CSV",
+          "Chooser cancel",
+          "CSV registration failure",
+          "Retry after registration failure",
+          "Explicit renderer reload preserves window",
+          "CSV after renderer reload",
+          "IPC and event listener after reload"
+        ],
+        "status": "passed",
+        "note": "First CSV chooser native; remaining chooser answers supplied by test; all registrations and analyses real."
+      },
+      {
+        "mode": "installed",
+        "nativeChooser": true,
+        "pid": 69852,
+        "executable": "D:\\DAnalyis\\desktop\\release\\phase29-installed-20260930\\Data Analysis Agent.exe",
+        "packaged": true,
+        "rendererUrl": "file:///D:/DAnalyis/desktop/release/phase29-installed-20260930/resources/app.asar/dist/src/renderer/index.html",
+        "userData": "D:\\DAnalyis\\desktop\\release\\phase291-installed-native-edVUCU\\profile",
+        "windowId": 1,
+        "webContentsId": 1,
+        "events": [
+          {
+            "event": "show",
+            "time": 1790950478791
+          },
+          {
+            "event": "focus",
+            "time": 1790950478815
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": true
+            },
+            "time": 1790950478820
+          },
+          {
+            "event": "blur",
+            "time": 1790950479352
+          },
+          {
+            "event": "focus",
+            "time": 1790950483146
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950483839
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950484167
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950484173
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950485698
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": true,
+              "files": 0
+            },
+            "time": 1790950485700
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950485781
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950485789
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950486066
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950486075
+          },
+          {
+            "event": "did-start-loading",
+            "time": 1790950486385
+          },
+          {
+            "event": "did-finish-load",
+            "time": 1790950486572
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790950486580
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790950486583
+          }
+        ],
+        "checks": [
+          "CSV success and parent binding",
+          "Fixed sales fixture before numeric analysis",
+          "Real analysis and event listener after CSV",
+          "Chooser cancel",
+          "CSV registration failure",
+          "Retry after registration failure",
+          "Explicit renderer reload preserves window",
+          "CSV after renderer reload",
+          "IPC and event listener after reload"
+        ],
+        "status": "passed",
+        "note": "First CSV chooser native; remaining chooser answers supplied by test; all registrations and analyses real."
+      }
+    ]
+  },
+  "automated_lifecycle": {
+    "status": "PASS",
+    "checks_passed": 24,
+    "checks_total": 24,
+    "results": [
+      {
+        "mode": "dev",
+        "nativeChooser": false,
+        "pid": 55232,
+        "executable": "D:\\DAnalyis\\desktop\\node_modules\\electron\\dist\\electron.exe",
+        "packaged": false,
+        "rendererUrl": "file:///D:/DAnalyis/desktop/dist/src/renderer/index.html",
+        "userData": "D:\\DAnalyis\\desktop\\release\\phase291-dev-auto-TOi0mh\\profile",
+        "windowId": 1,
+        "webContentsId": 1,
+        "events": [
+          {
+            "event": "show",
+            "time": 1790951693863
+          },
+          {
+            "event": "focus",
+            "time": 1790951693877
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951693881
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951693886
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951695262
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": true,
+              "files": 0
+            },
+            "time": 1790951695264
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951695288
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951695294
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951695561
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951695569
+          },
+          {
+            "event": "did-start-loading",
+            "time": 1790951695886
+          },
+          {
+            "event": "did-finish-load",
+            "time": 1790951696013
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951696022
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951696024
+          }
+        ],
+        "checks": [
+          "CSV success and parent binding",
+          "Real analysis and event listener after CSV",
+          "Chooser cancel",
+          "CSV registration failure",
+          "Retry after registration failure",
+          "Explicit renderer reload preserves window",
+          "CSV after renderer reload",
+          "IPC and event listener after reload"
+        ],
+        "status": "passed",
+        "note": "Chooser answers supplied by test; all registrations and analyses real. Not native chooser acceptance."
+      },
+      {
+        "mode": "packaged",
+        "nativeChooser": false,
+        "pid": 70680,
+        "executable": "D:\\DAnalyis\\desktop\\release\\win-unpacked\\Data Analysis Agent.exe",
+        "packaged": true,
+        "rendererUrl": "file:///D:/DAnalyis/desktop/release/win-unpacked/resources/app.asar/dist/src/renderer/index.html",
+        "userData": "D:\\DAnalyis\\desktop\\release\\phase291-packaged-auto-1p3lVq\\profile",
+        "windowId": 1,
+        "webContentsId": 1,
+        "events": [
+          {
+            "event": "show",
+            "time": 1790951700235
+          },
+          {
+            "event": "focus",
+            "time": 1790951700310
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951700327
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951700328
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951702283
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": true,
+              "files": 0
+            },
+            "time": 1790951702287
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951702460
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951702462
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951702683
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951702688
+          },
+          {
+            "event": "did-start-loading",
+            "time": 1790951702907
+          },
+          {
+            "event": "did-finish-load",
+            "time": 1790951703019
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951703039
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951703040
+          }
+        ],
+        "checks": [
+          "CSV success and parent binding",
+          "Real analysis and event listener after CSV",
+          "Chooser cancel",
+          "CSV registration failure",
+          "Retry after registration failure",
+          "Explicit renderer reload preserves window",
+          "CSV after renderer reload",
+          "IPC and event listener after reload"
+        ],
+        "status": "passed",
+        "note": "Chooser answers supplied by test; all registrations and analyses real. Not native chooser acceptance."
+      },
+      {
+        "mode": "installed",
+        "nativeChooser": false,
+        "pid": 63168,
+        "executable": "D:\\DAnalyis\\desktop\\release\\phase29-installed-20260930\\Data Analysis Agent.exe",
+        "packaged": true,
+        "rendererUrl": "file:///D:/DAnalyis/desktop/release/phase29-installed-20260930/resources/app.asar/dist/src/renderer/index.html",
+        "userData": "D:\\DAnalyis\\desktop\\release\\phase291-installed-auto-RVjKr9\\profile",
+        "windowId": 1,
+        "webContentsId": 1,
+        "events": [
+          {
+            "event": "show",
+            "time": 1790951706770
+          },
+          {
+            "event": "focus",
+            "time": 1790951706790
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951706795
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951706797
+          },
+          {
+            "event": "blur",
+            "time": 1790951708045
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951708734
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": true,
+              "files": 0
+            },
+            "time": 1790951708744
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951708766
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951708775
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951708980
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951708989
+          },
+          {
+            "event": "did-start-loading",
+            "time": 1790951709170
+          },
+          {
+            "event": "did-finish-load",
+            "time": 1790951709201
+          },
+          {
+            "event": "dialog-open",
+            "detail": {
+              "parentId": 1,
+              "native": false
+            },
+            "time": 1790951709206
+          },
+          {
+            "event": "dialog-result",
+            "detail": {
+              "canceled": false,
+              "files": 1
+            },
+            "time": 1790951709213
+          }
+        ],
+        "checks": [
+          "CSV success and parent binding",
+          "Real analysis and event listener after CSV",
+          "Chooser cancel",
+          "CSV registration failure",
+          "Retry after registration failure",
+          "Explicit renderer reload preserves window",
+          "CSV after renderer reload",
+          "IPC and event listener after reload"
+        ],
+        "status": "passed",
+        "note": "Chooser answers supplied by test; all registrations and analyses real. Not native chooser acceptance."
+      }
+    ]
+  },
+  "full_regression": {
+    "typescript_build": "PASS",
+    "desktop": 38,
+    "desktop_total": 38,
+    "electron_smoke": "PASS",
+    "dev_e2e_steps": 10,
+    "packaged_e2e_steps": 10,
+    "packaged_two_launch_smoke": "PASS",
+    "installed_two_launch_smoke": "PASS",
+    "sidecar": "PASS",
+    "resource_audits_packaged_installed": "PASS",
+    "private_provider_mcp_integrations_packaged_installed": "PASS",
+    "node": 13,
+    "node_total": 13,
+    "python": 400,
+    "python_total": 400,
+    "p0": 15,
+    "p0_total": 15,
+    "p1": 20,
+    "p1_total": 20,
+    "robustness": 25,
+    "robustness_total": 25,
+    "day19": {
+      "passed_cases": 60,
+      "total_cases": 60,
+      "harness_passed": true,
+      "regression_gate_passed": true
+    },
+    "regression_gate": {
+      "passed": true,
+      "results": [
+        {
+          "name": "p0_100_percent",
+          "status": "PASS",
+          "reason": "1.000000 meets minimum 1.000000",
+          "actual": 1.0,
+          "baseline": 1.0,
+          "limit": 1.0
+        },
+        {
+          "name": "p1_not_below_baseline",
+          "status": "PASS",
+          "reason": "1.000000 meets minimum 1.000000",
+          "actual": 1.0,
+          "baseline": 1.0,
+          "limit": 1.0
+        },
+        {
+          "name": "robustness_not_below_baseline",
+          "status": "PASS",
+          "reason": "1.000000 meets minimum 1.000000",
+          "actual": 1.0,
+          "baseline": 1.0,
+          "limit": 1.0
+        },
+        {
+          "name": "security_violation_zero",
+          "status": "PASS",
+          "reason": "value is 0",
+          "actual": 0,
+          "baseline": 0,
+          "limit": 0
+        },
+        {
+          "name": "contract_failure_zero",
+          "status": "PASS",
+          "reason": "value is 0",
+          "actual": 0,
+          "baseline": 0,
+          "limit": 0
+        },
+        {
+          "name": "avg_latency",
+          "status": "PASS",
+          "reason": "0.317187 is within tolerance limit 1.249866",
+          "actual": 0.3171871666666667,
+          "baseline": 0.24986613333333335,
+          "limit": 1.2498661333333334
+        },
+        {
+          "name": "p95_latency",
+          "status": "PASS",
+          "reason": "0.869211 is within tolerance limit 1.695978",
+          "actual": 0.869211,
+          "baseline": 0.695978,
+          "limit": 1.695978
+        },
+        {
+          "name": "max_latency",
+          "status": "PASS",
+          "reason": "1.062962 is within tolerance limit 1.877718",
+          "actual": 1.062962,
+          "baseline": 0.877718,
+          "limit": 1.877718
+        },
+        {
+          "name": "average_cost",
+          "status": "PASS",
+          "reason": "0.000000 is within tolerance limit 0.500000",
+          "actual": 0.0,
+          "baseline": 0.0,
+          "limit": 0.5
+        },
+        {
+          "name": "maximum_cost",
+          "status": "PASS",
+          "reason": "0.000000 is within tolerance limit 0.500000",
+          "actual": 0.0,
+          "baseline": 0.0,
+          "limit": 0.5
+        },
+        {
+          "name": "existing_thresholds",
+          "status": "PASS",
+          "reason": "all existing P0/P1/Robustness gates passed",
+          "actual": null,
+          "baseline": null,
+          "limit": null
+        }
+      ]
+    },
+    "security_violations": 0,
+    "contract_failures": 0,
+    "logs_directory": "desktop/release/phase291-diagnosis"
+  },
+  "protected_core": {
+    "Checked": 65,
+    "Changed": 0
+  },
+  "existing_evaluation_expectations_or_timeouts_changed": false,
+  "fixed_sleep_added": false,
+  "installer_rebuilt": false,
+  "installer_sha256": "B13822E0F59505593ECF48C292DF960259250F0B22834EAE87742AA9CB02F89A",
+  "phase23_real_openai": {
+    "complete": false,
+    "historical_http_statuses": [
+      429,
+      429
+    ],
+    "env_loaded": false,
+    "new_real_model_requests": 0
+  },
+  "phase29_final_fully_passed": false,
+  "remaining": "historical first disappearance cause not established; no speculative production fix; Phase 2.3 real OpenAI acceptance remains separate and incomplete"
+}

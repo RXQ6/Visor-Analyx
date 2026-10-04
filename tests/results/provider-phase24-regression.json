@@ -1,0 +1,62 @@
+{
+  "date": "2026-09-27",
+  "phase": "2.4",
+  "status": "dual_mode_selection_verified_offline",
+  "runtime_selection": {
+    "entry": "worker -> load_provider_config -> build_workflow -> create_provider",
+    "default": "deterministic",
+    "supported": ["deterministic", "openai-compatible"],
+    "environment_fields": [
+      "DATA_AGENT_PROVIDER_ID", "DATA_AGENT_MODEL_NAME",
+      "DATA_AGENT_PROVIDER_ENDPOINT", "DATA_AGENT_API_KEY_ENV"
+    ],
+    "factory_no_argument_default_unchanged": true,
+    "silent_fallback": false,
+    "config_files_loaded": false,
+    "requires_application_restart_for_external_env_changes": true
+  },
+  "provider_tests": {
+    "passed": 57,
+    "total": 57,
+    "new_selection_tests": 15,
+    "new_test_initial_issue": "substring assertion matched invalid_provider_config error code; corrected to exact JSON keys",
+    "existing_provider_tests_modified_this_phase": false
+  },
+  "typescript_build": "PASS",
+  "desktop_tests": {"passed": 30, "total": 30},
+  "electron_smoke": "PASS",
+  "electron_e2e": {"status": "PASS", "steps": 9},
+  "desktop_npm_test_exit_zero": true,
+  "node_tests": {"passed": 13, "total": 13},
+  "python_regression": {"passed": 318, "total": 318},
+  "p0": {"passed": 15, "total": 15},
+  "p1": {"passed": 20, "total": 20},
+  "robustness": {"passed": 25, "total": 25},
+  "day19": {"passed": 60, "total": 60},
+  "regression_gate": {"passed": 11, "total": 11},
+  "security_violations": 0,
+  "contract_failures": 0,
+  "staged_provider_selection_runtime_ssl_imports": "PASS",
+  "safety": {
+    "credentials_in_new_tests": "synthetic_only",
+    "real_credential_env_lookup": false,
+    "env_file_loaded": false,
+    "external_provider_requests": 0,
+    "real_mode_integration": "mock_transport_and_actual_loopback_http_child_runtime",
+    "skill_provider_instance_reuse": "PASS_both_modes",
+    "session_trace_log_event_config_exclusion": "PASS",
+    "runtime_event_envelope_unchanged": true,
+    "existing_evaluation_thresholds_modified": false
+  },
+  "phase23_real_acceptance": {
+    "complete": false,
+    "previous_text_http_status": 429,
+    "previous_tools_http_status": 429,
+    "real_final_answer_tool_call_agentloop_parsing": "unverified",
+    "model_service_compatibility": "unverified",
+    "new_real_requests_this_phase": 0,
+    "previous_evidence": "provider-real-smoke.json"
+  },
+  "installer_rebuilt": false,
+  "next_phase_started": false
+}

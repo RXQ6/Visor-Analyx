@@ -1,0 +1,1 @@
+Public Phase 2.6 MCP fixture. Metadata only; no customer data or credentials.

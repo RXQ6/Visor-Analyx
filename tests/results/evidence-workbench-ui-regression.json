@@ -1,0 +1,322 @@
+{
+  "completedAt": "2026-10-04T07:54:44.142Z",
+  "task": "User-authorized Evidence Workbench Renderer UI",
+  "status": "PASS",
+  "productionFiles": [
+    "desktop/src/renderer/index.html",
+    "desktop/src/renderer/index.ts",
+    "desktop/src/renderer/styles.css"
+  ],
+  "testFiles": [
+    "desktop/scripts/verify-evidence-workbench.cjs",
+    "desktop/tests/evidence-workbench-probe.cjs"
+  ],
+  "installer": {
+    "path": "D:\\DAnalyis\\desktop\\release\\evidence-workbench-final-20261002\\Data Analysis Agent Setup 0.1.0.exe",
+    "sizeBytes": 147328858,
+    "sha256": "69803815A3B5037058AFFF3AE17B95D981C0D844B24FB3AE6B5C16A96C47200C",
+    "installation": {
+      "ExitCode": 0,
+      "Target": "D:\\DAnalyis\\desktop\\release\\evidence-workbench-installed-final-20261002",
+      "ExecutablePresent": true,
+      "UninstallerPresent": true
+    }
+  },
+  "ui": [
+    {
+      "mode": "dev",
+      "executable": "D:\\DAnalyis\\desktop\\node_modules\\electron\\dist\\electron.exe",
+      "packaged": false,
+      "rendererUrl": "file:///D:/DAnalyis/desktop/dist/src/renderer/index.html",
+      "checks": [
+        "Empty state contains no invented data or results",
+        "CSV parent binding and real DatasetSummary field/evidence projection",
+        "Real result 1580, three non-overlapping panels and unique Runtime events",
+        "Real chart and source table retain regional totals 380 / 1200",
+        "Settings has no trace/composer overlap and retains existing controls",
+        "1000 / 700 / 520px responsive layout preserves composer and page bounds",
+        "Existing Session IPC remains available after all UI transitions"
+      ],
+      "status": "passed",
+      "screenshots": [
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-dev-wlHkFx\\empty.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-dev-wlHkFx\\analysis.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-dev-wlHkFx\\chart.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-dev-wlHkFx\\settings.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-dev-wlHkFx\\compact.png"
+      ],
+      "note": "Chooser answer supplied by test; registration, Python computation, ChartSpec and Runtime events real. Not native chooser acceptance.",
+      "resultPath": "D:\\DAnalyis\\desktop\\release\\evidence-ui-dev-wlHkFx\\result.json"
+    },
+    {
+      "mode": "packaged",
+      "executable": "D:\\DAnalyis\\desktop\\release\\evidence-workbench-final-20261002\\win-unpacked\\Data Analysis Agent.exe",
+      "packaged": true,
+      "rendererUrl": "file:///D:/DAnalyis/desktop/release/evidence-workbench-final-20261002/win-unpacked/resources/app.asar/dist/src/renderer/index.html",
+      "checks": [
+        "Empty state contains no invented data or results",
+        "CSV parent binding and real DatasetSummary field/evidence projection",
+        "Real result 1580, three non-overlapping panels and unique Runtime events",
+        "Real chart and source table retain regional totals 380 / 1200",
+        "Settings has no trace/composer overlap and retains existing controls",
+        "1000 / 700 / 520px responsive layout preserves composer and page bounds",
+        "Existing Session IPC remains available after all UI transitions"
+      ],
+      "status": "passed",
+      "screenshots": [
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-packaged-T1JIid\\empty.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-packaged-T1JIid\\analysis.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-packaged-T1JIid\\chart.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-packaged-T1JIid\\settings.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-packaged-T1JIid\\compact.png"
+      ],
+      "note": "Chooser answer supplied by test; registration, Python computation, ChartSpec and Runtime events real. Not native chooser acceptance.",
+      "resultPath": "D:\\DAnalyis\\desktop\\release\\evidence-ui-packaged-T1JIid\\result.json"
+    },
+    {
+      "mode": "installed",
+      "executable": "D:\\DAnalyis\\desktop\\release\\evidence-workbench-installed-final-20261002\\Data Analysis Agent.exe",
+      "packaged": true,
+      "rendererUrl": "file:///D:/DAnalyis/desktop/release/evidence-workbench-installed-final-20261002/resources/app.asar/dist/src/renderer/index.html",
+      "checks": [
+        "Empty state contains no invented data or results",
+        "CSV parent binding and real DatasetSummary field/evidence projection",
+        "Real result 1580, three non-overlapping panels and unique Runtime events",
+        "Real chart and source table retain regional totals 380 / 1200",
+        "Settings has no trace/composer overlap and retains existing controls",
+        "1000 / 700 / 520px responsive layout preserves composer and page bounds",
+        "Existing Session IPC remains available after all UI transitions"
+      ],
+      "status": "passed",
+      "screenshots": [
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-installed-wmP6Ij\\empty.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-installed-wmP6Ij\\analysis.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-installed-wmP6Ij\\chart.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-installed-wmP6Ij\\settings.png",
+        "D:\\DAnalyis\\desktop\\release\\evidence-ui-installed-wmP6Ij\\compact.png"
+      ],
+      "note": "Chooser answer supplied by test; registration, Python computation, ChartSpec and Runtime events real. Not native chooser acceptance.",
+      "resultPath": "D:\\DAnalyis\\desktop\\release\\evidence-ui-installed-wmP6Ij\\result.json"
+    }
+  ],
+  "lifecycle": [
+    {
+      "mode": "dev",
+      "checks": [
+        "CSV success and parent binding",
+        "Real analysis and event listener after CSV",
+        "Chooser cancel",
+        "CSV registration failure",
+        "Retry after registration failure",
+        "Explicit renderer reload preserves window",
+        "CSV after renderer reload",
+        "IPC and event listener after reload"
+      ],
+      "resultPath": "D:\\DAnalyis\\desktop\\release\\phase291-dev-auto-vZw9Eq\\result.json"
+    },
+    {
+      "mode": "packaged",
+      "checks": [
+        "CSV success and parent binding",
+        "Real analysis and event listener after CSV",
+        "Chooser cancel",
+        "CSV registration failure",
+        "Retry after registration failure",
+        "Explicit renderer reload preserves window",
+        "CSV after renderer reload",
+        "IPC and event listener after reload"
+      ],
+      "resultPath": "D:\\DAnalyis\\desktop\\release\\phase291-packaged-auto-ab4uRp\\result.json"
+    },
+    {
+      "mode": "installed",
+      "checks": [
+        "CSV success and parent binding",
+        "Real analysis and event listener after CSV",
+        "Chooser cancel",
+        "CSV registration failure",
+        "Retry after registration failure",
+        "Explicit renderer reload preserves window",
+        "CSV after renderer reload",
+        "IPC and event listener after reload"
+      ],
+      "resultPath": "D:\\DAnalyis\\desktop\\release\\phase291-installed-auto-4OR56A\\result.json"
+    }
+  ],
+  "smoke": [
+    {
+      "mode": "packaged",
+      "directory": "D:\\DAnalyis\\desktop\\release\\evidence-ui-final-packaged-smoke-sTR4nR",
+      "status": "PASS",
+      "realExeTwoLaunches": true,
+      "developmentPathRemoved": true,
+      "settings": {
+        "defaultProvider": "deterministic",
+        "missingCredentials": true,
+        "externalPage": true,
+        "mcpEnabled": true
+      },
+      "restartSettings": {
+        "defaultProvider": "deterministic",
+        "restored": true,
+        "mcpDisabled": true
+      },
+      "hitlReject": true,
+      "restoredMessages": 11,
+      "restoredTraceEvents": 20,
+      "newRuntimeEvents": 0
+    },
+    {
+      "mode": "installed",
+      "directory": "D:\\DAnalyis\\desktop\\release\\evidence-ui-final-installed-smoke-t8zSGU",
+      "status": "PASS",
+      "realExeTwoLaunches": true,
+      "developmentPathRemoved": true,
+      "settings": {
+        "defaultProvider": "deterministic",
+        "missingCredentials": true,
+        "externalPage": true,
+        "mcpEnabled": true
+      },
+      "restartSettings": {
+        "defaultProvider": "deterministic",
+        "restored": true,
+        "mcpDisabled": true
+      },
+      "hitlReject": true,
+      "restoredMessages": 11,
+      "restoredTraceEvents": 20,
+      "newRuntimeEvents": 0
+    }
+  ],
+  "regressions": {
+    "typescriptBuild": "PASS",
+    "node": "13/13",
+    "python": "400/400",
+    "desktop": "38/38",
+    "electronSmoke": "PASS",
+    "devE2E": "10 steps PASS",
+    "p0": "15/15",
+    "p1": "20/20",
+    "robustness": "25/25",
+    "day19": {
+      "passed_cases": 60,
+      "total_cases": 60,
+      "harness_passed": true,
+      "regression_gate_passed": true
+    },
+    "regressionGate": {
+      "passed": true,
+      "results": [
+        {
+          "name": "p0_100_percent",
+          "status": "PASS",
+          "reason": "1.000000 meets minimum 1.000000",
+          "actual": 1,
+          "baseline": 1,
+          "limit": 1
+        },
+        {
+          "name": "p1_not_below_baseline",
+          "status": "PASS",
+          "reason": "1.000000 meets minimum 1.000000",
+          "actual": 1,
+          "baseline": 1,
+          "limit": 1
+        },
+        {
+          "name": "robustness_not_below_baseline",
+          "status": "PASS",
+          "reason": "1.000000 meets minimum 1.000000",
+          "actual": 1,
+          "baseline": 1,
+          "limit": 1
+        },
+        {
+          "name": "security_violation_zero",
+          "status": "PASS",
+          "reason": "value is 0",
+          "actual": 0,
+          "baseline": 0,
+          "limit": 0
+        },
+        {
+          "name": "contract_failure_zero",
+          "status": "PASS",
+          "reason": "value is 0",
+          "actual": 0,
+          "baseline": 0,
+          "limit": 0
+        },
+        {
+          "name": "avg_latency",
+          "status": "PASS",
+          "reason": "0.386401 is within tolerance limit 1.249866",
+          "actual": 0.3864005333333333,
+          "baseline": 0.24986613333333335,
+          "limit": 1.2498661333333334
+        },
+        {
+          "name": "p95_latency",
+          "status": "PASS",
+          "reason": "1.088284 is within tolerance limit 1.695978",
+          "actual": 1.088284,
+          "baseline": 0.695978,
+          "limit": 1.695978
+        },
+        {
+          "name": "max_latency",
+          "status": "PASS",
+          "reason": "1.463556 is within tolerance limit 1.877718",
+          "actual": 1.463556,
+          "baseline": 0.877718,
+          "limit": 1.877718
+        },
+        {
+          "name": "average_cost",
+          "status": "PASS",
+          "reason": "0.000000 is within tolerance limit 0.500000",
+          "actual": 0,
+          "baseline": 0,
+          "limit": 0.5
+        },
+        {
+          "name": "maximum_cost",
+          "status": "PASS",
+          "reason": "0.000000 is within tolerance limit 0.500000",
+          "actual": 0,
+          "baseline": 0,
+          "limit": 0.5
+        },
+        {
+          "name": "existing_thresholds",
+          "status": "PASS",
+          "reason": "all existing P0/P1/Robustness gates passed",
+          "actual": null,
+          "baseline": null,
+          "limit": null
+        }
+      ]
+    },
+    "resourceAuditBoth": "PASS",
+    "privateProviderMcpIntegrationsBoth": "PASS"
+  },
+  "protectedFiles": {
+    "count": 275,
+    "changed": 0,
+    "source": "desktop/release/evidence-ui-baseline-20261002/protected-hashes.json"
+  },
+  "packagedAndInstalledRendererBytesMatchCurrentBuild": true,
+  "priorPhase29Installer": {
+    "path": "D:\\DAnalyis\\desktop\\release\\Data Analysis Agent Setup 0.1.0.exe",
+    "sha256": "B13822E0F59505593ECF48C292DF960259250F0B22834EAE87742AA9CB02F89A",
+    "unchanged": true
+  },
+  "nativeChooserCoverage": "Chooser responses supplied by test; real registration/computation/events. No new manual native acceptance claim.",
+  "historicalStatus": {
+    "phase29FinallyFullyPassed": false,
+    "firstWindowDisappearanceRootConfirmed": false,
+    "phase23RealOpenaiAccepted": false,
+    "note": "No production window fix; historical HTTP 429 gap unchanged."
+  }
+}

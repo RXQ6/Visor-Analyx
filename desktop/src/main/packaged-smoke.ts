@@ -58,7 +58,45 @@ export async function runPackagedSmoke(
     await waitFor(window, step, `Boolean(window.agent && document.querySelector("#file-select") &&
       document.querySelector("#session-list") && document.querySelector("#run-status")?.dataset.state !== "loading")`);
 
+    step = "installed Settings initialization";
+    await click(window, "#settings-open");
+    await waitFor(window, step, `document.querySelector("#settings-feedback")?.textContent === "已读取当前配置。"`);
+    const initial = await window.webContents.executeJavaScript("window.desktopSettings.getSettings()");
+    assert.equal(initial.ok, true);
+    assert.equal(initial.data.config.provider.provider_id, "deterministic");
+    assert.equal(initial.data.mcp.read_only, true);
+    assert.equal(initial.data.mcp.enabled, phase === "resume");
+    const settings: Record<string, unknown> = { defaultProvider: "deterministic" };
+
     if (phase === "first") {
+      step = "external Provider page and safe missing credentials";
+      await window.webContents.executeJavaScript(`(() => {
+        const select = document.querySelector("#settings-provider"); select.value = "openai-compatible";
+        select.dispatchEvent(new Event("change"));
+        document.querySelector("#settings-model").value = "acceptance-model";
+        document.querySelector("#settings-endpoint").value = "https://acceptance.invalid/v1/chat/completions";
+        document.querySelector("#settings-key-env").value = "PHASE29_ABSENT_KEY";
+      })()`);
+      assert.equal(await window.webContents.executeJavaScript(`!document.querySelector("#settings-external-fields").hidden &&
+        !document.querySelector("#settings-view input[type=password]")`), true);
+      await click(window, "#settings-save");
+      await waitFor(window, step, `document.querySelector("#settings-error").dataset.code === "settings_missing_credentials"`);
+      settings.externalPage = settings.missingCredentials = true;
+      const unchanged = await window.webContents.executeJavaScript("window.desktopSettings.getSettings()");
+      assert.equal(unchanged.data.config.provider.provider_id, "deterministic");
+
+      step = "enable bundled readonly MCP";
+      await window.webContents.executeJavaScript(`(() => {
+        const select = document.querySelector("#settings-provider"); select.value = "deterministic";
+        select.dispatchEvent(new Event("change")); document.querySelector("#settings-mcp-enabled").checked = true;
+      })()`);
+      await click(window, "#settings-save");
+      await waitFor(window, step, `document.querySelector("#settings-feedback").textContent === "已保存，用于后续新分析。" &&
+        document.querySelector("#settings-mcp-status").textContent === "已启用 · 只读"`);
+      const enabled = await window.webContents.executeJavaScript("window.desktopSettings.getSettings()");
+      assert.deepEqual(enabled.data.mcp.registered_tools, ["mcp_filesystem__get_file_info"]);
+      settings.mcpEnabled = true;
+      await click(window, "#workspace-open");
       const file = process.env.DATA_AGENT_PACKAGING_SMOKE_FILE;
       assert.ok(file && existsSync(file), `Smoke CSV is missing: ${file}`);
       const originalDialog = dialog.showOpenDialog;
@@ -103,6 +141,20 @@ export async function runPackagedSmoke(
       const sessions = await window.webContents.executeJavaScript("window.agent.listSessions()");
       assert.equal(sessions.ok, true);
       assert.ok(sessions.data.sessions.some((session: { threadId: string }) => session.threadId === completed.thread_id));
+
+      step = "installed HITL blocks and rejects existing simulated external action";
+      await window.webContents.executeJavaScript(`document.querySelector("#run-input").value = "分析数据并执行外部写操作"`);
+      await click(window, "#run-submit");
+      await waitFor(window, step, `document.querySelector("#run-status").dataset.state === "waiting_approval" && !document.querySelector("#approval-card").hidden`);
+      const approvalText = await window.webContents.executeJavaScript(`document.querySelector("#approval-card").innerText`);
+      assert.doesNotMatch(String(approvalText), /approval_|action_hash|\{\s*"/);
+      await click(window, "#approval-reject");
+      await waitFor(window, step, `document.querySelector("#run-status").dataset.state === "failed"`);
+      assert.ok(events.some((event) => event.type === "approval_resolved" && event.payload.status === "rejected"));
+      // Finish the same Session with a normal analysis before restart.
+      await window.webContents.executeJavaScript(`document.querySelector("#run-input").value = ${JSON.stringify(question)}`);
+      await click(window, "#run-submit");
+      await waitFor(window, "normal analysis after HITL rejection", `document.querySelector("#run-status").dataset.state === "completed"`, 45000);
       writeFileSync(resultPath, JSON.stringify({
         phase, pid: process.pid, packaged: app.isPackaged, executable: process.execPath,
         resources: process.resourcesPath, userData: app.getPath("userData"),
@@ -110,8 +162,18 @@ export async function runPackagedSmoke(
         python: paths.pythonExecutable, threadId: completed.thread_id,
         traceId: completed.trace_id, eventTypes: events.map((event) => event.type),
         dataset: ui.dataset, answer: ui.answer, status: ui.status, traceCount: ui.sequences.length,
+        settings, hitlReject: true,
       }, null, 2));
     } else {
+      assert.equal(initial.data.mcp.status, "ready");
+      assert.deepEqual(initial.data.mcp.registered_tools, ["mcp_filesystem__get_file_info"]);
+      settings.restored = true;
+      await window.webContents.executeJavaScript(`document.querySelector("#settings-mcp-enabled").checked = false`);
+      await click(window, "#settings-save");
+      await waitFor(window, "disable MCP after restart", `document.querySelector("#settings-feedback").textContent === "已保存，用于后续新分析。" &&
+        document.querySelector("#settings-mcp-status").textContent === "已停用"`);
+      settings.mcpDisabled = true;
+      await click(window, "#workspace-open");
       const threadId = process.env.DATA_AGENT_PACKAGING_SMOKE_THREAD;
       assert.ok(threadId, "Session thread id is missing for restart verification");
       step = "Session List after process restart";
@@ -137,7 +199,7 @@ export async function runPackagedSmoke(
         rendererUrl: window.webContents.getURL(), threadId,
         status: ui.status, traceCount: ui.traceCount,
         messageCount: snapshot.data.messages.length, traceIds: snapshot.data.traceIds,
-        newRuntimeEvents: events.length,
+        newRuntimeEvents: events.length, settings,
       }, null, 2));
     }
   } catch (error) {

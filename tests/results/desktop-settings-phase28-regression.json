@@ -1,0 +1,252 @@
+{
+  "date": "2026-09-28",
+  "phase": "2.8",
+  "status": "desktop_non_sensitive_provider_mcp_settings_verified",
+  "changed_files": [
+    "desktop/python/runtime_settings.py",
+    "desktop/python/runtime_bridge.py",
+    "desktop/src/shared/settings.ts",
+    "desktop/src/main/settings-store.ts",
+    "desktop/src/main/settings-controller.ts",
+    "desktop/src/main/ipc/register-handlers.ts",
+    "desktop/src/bridge/protocol.ts",
+    "desktop/src/bridge/runtimeClient.ts",
+    "desktop/src/preload/index.ts",
+    "desktop/src/renderer/global.d.ts",
+    "desktop/src/renderer/settings.ts",
+    "desktop/src/renderer/index.ts",
+    "desktop/src/renderer/index.html",
+    "desktop/src/renderer/styles.css",
+    "desktop/scripts/copy-static.cjs",
+    "desktop/scripts/stage-python-sidecar.cjs",
+    "desktop/tests/settings.test.ts",
+    "desktop/tests/m6-electron-e2e.ts",
+    "tests/test_desktop_settings.py",
+    "docs/Desktop-Provider-MCP-Settings.md",
+    "docs/images/desktop/settings-runtime-phase28.png",
+    "README.md",
+    "processed.md",
+    "CURRENT_TASK.md",
+    "tests/results/desktop-settings-phase28-regression.json",
+    "tests/results/day19-eval-harness.json",
+    "tests/results/day19-unified-report.json",
+    "tests/results/day19-unified-report.md",
+    "tests/results/evaluation-summary.md",
+    "tests/results/evaluation.json",
+    "tests/results/p1-evaluation-summary.md",
+    "tests/results/p1-evaluation.json",
+    "tests/results/robustness/robustness-evaluation.json",
+    "tests/results/robustness/robustness-summary.md",
+    "tests/results/robustness/traces.jsonl"
+  ],
+  "settings": {
+    "supported_providers": [
+      "deterministic",
+      "openai-compatible"
+    ],
+    "default_provider": "deterministic",
+    "default_mcp_enabled": false,
+    "fields": [
+      "provider_id",
+      "model_name",
+      "endpoint",
+      "api_key_env",
+      "mcp.enabled"
+    ],
+    "actual_key_field": false,
+    "secret_or_endpoint_in_main_analysis": false,
+    "other_integrations": "planned",
+    "remote_connection_test_button": false
+  },
+  "provider_chain": [
+    "Renderer Settings",
+    "isolated Preload Settings API",
+    "Main SettingsController / SettingsStore",
+    "Runtime settings command / response",
+    "Supervisor non-sensitive configuration snapshot",
+    "private worker environment metadata",
+    "existing Provider Factory",
+    "existing Workflow / Skill / AgentLoop"
+  ],
+  "mcp_chain": [
+    "Settings boolean only",
+    "Main validation",
+    "Runtime validation / MCPHost preflight discovery",
+    "fixed original Filesystem MCP",
+    "worker composition into original Registry",
+    "original Guardrail / Adapter / SDK stdio / ToolResult"
+  ],
+  "ipc": {
+    "new_settings_channels": [
+      "settings:get",
+      "settings:apply"
+    ],
+    "preload_settings_methods": [
+      "getSettings",
+      "applySettings"
+    ],
+    "existing_agent_api_methods_changed": false,
+    "added_runtime_configuration_commands": [
+      "settings.get",
+      "settings.apply"
+    ],
+    "runtime_event_envelope_changed": false,
+    "settings_responses_broadcast_as_events": false
+  },
+  "persistence": {
+    "location": "app userData/runtime-settings.json",
+    "main_only": true,
+    "contains_key_values": false,
+    "contains_credential_status_or_tool_results": false,
+    "atomic_temporary_file_and_rename": true,
+    "runtime_rollback_on_save_failure": true,
+    "application_or_supervisor_restart_restores_metadata": true,
+    "missing_restored_credentials_blocks_analysis": true,
+    "corrupt_storage_blocks_analysis_until_explicit_valid_save": true,
+    "active_run_blocks_apply": true,
+    "silent_fallback": false
+  },
+  "security": {
+    "runtime_reads_only_referenced_credential_for_external_provider": true,
+    "renderer_gets_key_values": false,
+    "credential_query_api": false,
+    "keys_written_to_config": false,
+    "known_credential_material_in_metadata_not_returned_to_renderer": true,
+    "authorization_or_key_in_logs_session_trace_events": false,
+    "endpoint_or_env_reference_in_session_trace_events": false,
+    "env_file_loaded": false,
+    "real_keys_used_in_verification": false,
+    "external_model_requests_in_verification": 0,
+    "mcp_allowed_root": "tests/fixtures/mcp-readonly",
+    "mcp_registered_tools": [
+      "mcp_filesystem__get_file_info"
+    ],
+    "mcp_remote_tools": [
+      "get_file_info"
+    ],
+    "mcp_write_operations": 0,
+    "mcp_allowed_scope_expanded": false,
+    "renderer_can_set_root_command_env_or_permissions": false
+  },
+  "special_tests": {
+    "desktop_settings": {
+      "passed": 8,
+      "total": 8
+    },
+    "python_settings": {
+      "passed": 14,
+      "total": 14
+    },
+    "provider": {
+      "passed": 79,
+      "total": 79
+    },
+    "mcp": {
+      "passed": 48,
+      "total": 48,
+      "existing_mock_and_sdk": 24
+    },
+    "phase27_joint": {
+      "passed": 18,
+      "total": 18
+    },
+    "python_settings_mcp_joint_combined": {
+      "passed": 80,
+      "total": 80
+    },
+    "controlled_loopback_worker": {
+      "provider_requests": 2,
+      "mcp_tool_calls": 1,
+      "final_answer": "PASS",
+      "actual_fixture_size": 78,
+      "session_trace_logs_config_isolation": "PASS"
+    }
+  },
+  "regression": {
+    "typescript_build": "PASS",
+    "desktop": {
+      "passed": 38,
+      "total": 38,
+      "skipped": 0
+    },
+    "electron_smoke": "PASS",
+    "electron_e2e": {
+      "status": "PASS",
+      "steps": 10,
+      "settings_save_error_permission_rejection_restart": "PASS",
+      "responsive_viewports": [
+        1600,
+        1200,
+        900,
+        700,
+        520
+      ]
+    },
+    "desktop_npm_test_exit_zero": true,
+    "node": {
+      "passed": 13,
+      "total": 13
+    },
+    "python": {
+      "passed": 396,
+      "total": 396
+    },
+    "p0": {
+      "passed": 15,
+      "total": 15
+    },
+    "p1": {
+      "passed": 20,
+      "total": 20
+    },
+    "robustness": {
+      "passed": 25,
+      "total": 25
+    },
+    "day19": {
+      "passed": 60,
+      "total": 60
+    },
+    "regression_gate": {
+      "passed": 11,
+      "total": 11
+    },
+    "security_violations": 0,
+    "contract_failures": 0,
+    "day19_latency_seconds": {
+      "average": 0.24399816666666665,
+      "p95": 0.651563,
+      "maximum": 0.803208
+    },
+    "evaluation_standards_or_baseline_modified": false
+  },
+  "protected_core": {
+    "python_files_hash_checked": 79,
+    "changed": [],
+    "agentloop_workflow_skill_session_memory_hitl_changed": false,
+    "provider_or_mcp_implementation_or_contract_changed": false,
+    "tool_registry_guardrail_dataset_chart_changed": false
+  },
+  "packaging": {
+    "sidecar_staging_rebuilt": true,
+    "isolated_staged_runtime_settings_import_and_default": "PASS",
+    "nsis_rebuilt": false,
+    "optional_mcp_dependencies_automatically_bundled": false
+  },
+  "phase23_real_openai_acceptance": {
+    "complete": false,
+    "previous_text_http_status": 429,
+    "previous_tools_http_status": 429,
+    "new_real_requests_this_phase": 0,
+    "real_response_tool_call_and_model_service_compatibility": "unverified",
+    "original_evidence": "provider-real-smoke.json"
+  },
+  "remaining_limits": [
+    "credential_availability_is_not_remote_service_compatibility",
+    "existing_installer_not_updated",
+    "optional_pinned_mcp_server_and_python_sdk_required_not_auto_bundled",
+    "fixed_public_fixture_scope_windows_stdio_only_not_os_sandbox",
+    "no_new_providers_servers_retry_or_directory_authorization"
+  ],
+  "next_phase_started": false
+}

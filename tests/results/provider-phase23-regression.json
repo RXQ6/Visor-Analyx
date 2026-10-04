@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-27",
+  "phase": "2.3",
+  "status": "offline_verified_real_provider_acceptance_failed_http429",
+  "provider_tests": { "passed": 42, "total": 42, "new_tests": 27 },
+  "typescript_build": "PASS",
+  "desktop_tests": { "passed": 30, "total": 30 },
+  "electron_e2e": { "status": "PASS", "steps": 9 },
+  "electron_smoke": {
+    "original_launch": "cancelled_state_timeout",
+    "diagnostic_state_at_timeout": "completed_without_error",
+    "launch_with_disable_background_timer_throttling": "PASS",
+    "assertions_or_timeout_modified": false
+  },
+  "original_desktop_npm_test_exit_zero": false,
+  "final_desktop_npm_test_exit_zero": true,
+  "test_launcher_fix": "disable-background-timer-throttling for Electron smoke only",
+  "electron_e2e_initial_resize_timeout": "700px remained at 900px; original test passed on rerun",
+  "node_tests": { "passed": 13, "total": 13 },
+  "python_regression": { "passed": 303, "total": 303 },
+  "p0": { "passed": 15, "total": 15 },
+  "p1": { "passed": 20, "total": 20 },
+  "robustness": { "passed": 25, "total": 25 },
+  "day19": { "passed": 60, "total": 60 },
+  "regression_gate": { "passed": 11, "total": 11 },
+  "security_violations": 0,
+  "contract_failures": 0,
+  "staged_provider_runtime_ssl_imports": "PASS",
+  "real_model_calls": {
+    "executed": 2,
+    "endpoint": "https://api.openai.com/v1/chat/completions",
+    "model_name": "gpt-5.6-luna",
+    "text": { "passed": false, "http_status": 429, "adaptation": "not_verified_no_successful_response" },
+    "tools": { "passed": false, "http_status": 429, "agentloop_parse": "not_verified_no_tool_call" },
+    "automatic_retries": 0,
+    "evidence": "provider-real-smoke.json"
+  },
+  "phase24_started": false
+}

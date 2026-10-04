@@ -9,11 +9,12 @@
     "build:sidecar": "node scripts/stage-python-sidecar.cjs",
     "dev": "npm run build && electron .",
     "start": "npm run build && electron .",
-    "test": "npm run build && node --test dist/tests/*.test.js && electron dist/tests/electron-smoke.js && electron dist/tests/m6-electron-e2e.js",
+    "test": "npm run build && node --test dist/tests/*.test.js && electron --disable-background-timer-throttling dist/tests/electron-smoke.js && electron dist/tests/m6-electron-e2e.js",
     "test:e2e": "npm run build && electron dist/tests/m6-electron-e2e.js",
     "test:e2e:packaged": "npm run build && node scripts/run-packaged-e2e.cjs",
     "test:smoke:packaged": "node scripts/verify-packaged-smoke.cjs",
     "verify:packaged-sidecar": "node scripts/verify-packaged-sidecar.cjs",
+    "verify:packaged-integrations": "node scripts/verify-packaged-integrations.cjs",
     "pack:win:dir": "npm run build && npm run build:sidecar && electron-builder --win --x64 --dir",
     "pack:win": "npm run build && npm run build:sidecar && electron-builder --win nsis --x64"
   },

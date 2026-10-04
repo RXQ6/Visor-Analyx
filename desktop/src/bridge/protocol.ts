@@ -5,7 +5,8 @@ export const MAX_JSONL_LINE_BYTES = 1024 * 1024;
 
 export type RuntimeCommandType =
   | "run.start" | "run.cancel" | "dataset.register"
-  | "session.list" | "session.get" | "session.resume" | "approval.resolve";
+  | "session.list" | "session.get" | "session.resume" | "approval.resolve"
+  | "settings.get" | "settings.apply";
 export type AgentEventType =
   | "run_started"
   | "route_selected"

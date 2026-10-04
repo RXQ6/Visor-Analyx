@@ -8,6 +8,7 @@ import {
   validateProtocolMessage,
 } from "./protocol";
 import { RuntimeProcessManager } from "./processManager";
+import { validateSettings, type DesktopSettings, type SettingsSnapshot } from "../shared/settings";
 
 export class RuntimeRequestError extends Error {
   constructor(
@@ -90,6 +91,25 @@ export class RuntimeClient {
       traceId: response.trace_id,
       status: "running",
     };
+  }
+
+  async getSettings(): Promise<SettingsSnapshot> {
+    return this.settingsResponse(await this.request(command("settings.get", {})));
+  }
+
+  async applySettings(config: DesktopSettings, restore = false): Promise<SettingsSnapshot> {
+    return this.settingsResponse(await this.request(command("settings.apply", { config: validateSettings(config), restore })));
+  }
+
+  private settingsResponse(response: RuntimeResponse): SettingsSnapshot {
+    const value = response.payload.settings;
+    if (!isRecord(value) || typeof value.ready !== "boolean" || !isRecord(value.mcp) ||
+        value.mcp.read_only !== true || !Array.isArray(value.mcp.registered_tools) ||
+        typeof value.mcp.root_summary !== "string" || !["not_required", "available", "missing", "unknown"].includes(String(value.credentials))) {
+      throw new RuntimeRequestError("INVALID_RUNTIME_RESPONSE", "Runtime returned invalid settings");
+    }
+    validateSettings(value.config);
+    return value as unknown as SettingsSnapshot;
   }
 
   async registerDataset(filePath: string, threadId?: string): Promise<RegisteredDataset> {

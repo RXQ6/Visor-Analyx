@@ -9,6 +9,12 @@ import { resolveRuntimePaths } from "./runtime-paths";
 
 let processManager: RuntimeProcessManager | null = null;
 
+// Acceptance launches use a fresh profile; never overwrite the user's sessions
+// or settings. This hook is gated by the existing packaged smoke mode.
+if (process.env.DATA_AGENT_PACKAGING_SMOKE && process.env.DATA_AGENT_PACKAGING_SMOKE_USER_DATA) {
+  app.setPath("userData", process.env.DATA_AGENT_PACKAGING_SMOKE_USER_DATA);
+}
+
 void app.whenReady().then(async () => {
   const paths = resolveRuntimePaths(app.isPackaged, __dirname, process.resourcesPath, app.getPath("userData"));
   processManager = new RuntimeProcessManager({

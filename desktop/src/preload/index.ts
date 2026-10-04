@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { AgentEvent, ApprovalInput, DesktopApi, FilesSelectInput, RunsCancelInput, RunsStartInput, SessionInput } from "../shared/ipc";
+import type { DesktopSettings, SettingsApi } from "../shared/settings";
 
 // A sandboxed preload cannot require local modules at runtime. Keep the shared
 // types, but compile the single M1 channel into this preload bundle.
@@ -33,3 +34,8 @@ const api: DesktopApi = Object.freeze({
 });
 
 contextBridge.exposeInMainWorld("agent", api);
+const settingsApi: SettingsApi = Object.freeze({
+  getSettings: () => ipcRenderer.invoke("settings:get"),
+  applySettings: (input: DesktopSettings) => ipcRenderer.invoke("settings:apply", input),
+});
+contextBridge.exposeInMainWorld("desktopSettings", settingsApi);
